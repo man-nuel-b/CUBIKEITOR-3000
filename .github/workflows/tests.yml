@@ -25,6 +25,8 @@ jobs:
           node --check src/legacy-adapter.js
           node --check src/worker-controller.js
           node --check src/cost-worker.js
+          node --check src/floor-plan-core.js
+          node --check src/vector-wall-mesh.js
       - name: Ejecutar pruebas
         run: node --test tests/*.test.cjs
       - name: Validar paquete Cloudflare Pages
@@ -32,3 +34,5 @@ jobs:
           sh scripts/build-pages.sh
           test -f dist/index.html
           test -f dist/src/core.js
+          test -f dist/floor-plan.html
+          test -f dist/src/vector-wall-mesh.js
