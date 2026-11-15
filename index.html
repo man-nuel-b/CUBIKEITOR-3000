@@ -1,4 +1,591 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cubikeitor Reactivo — Prototipo</title><style>
-:root{font-family:Inter,system-ui,sans-serif;color:#edf2fa;background:#0b1120}*{box-sizing:border-box}body{margin:0}header{padding:20px 28px;display:flex;justify-content:space-between;align-items:center;background:#111c31;border-bottom:1px solid #263753}h1{font-size:23px;margin:0}h2{font-size:17px;margin:0 0 16px}.muted{color:#9fb1ca;font-size:13px}.brand{color:#f5c36a}.layout{display:grid;grid-template-columns:minmax(300px,350px) minmax(300px,1fr) minmax(290px,340px);gap:16px;padding:16px;min-height:calc(100vh - 85px)}.panel{background:#142138;border:1px solid #2a3d58;border-radius:16px;padding:20px}label{display:block;font-size:12px;color:#b4c4d8;margin:10px 0 6px}input,select{width:100%;background:#0b172a;color:#f8fafc;border:1px solid #3b506f;border-radius:8px;padding:10px;font-size:14px}button{background:#f2b95d;color:#152031;border:0;padding:11px 14px;border-radius:9px;cursor:pointer;font-weight:700}button:hover{filter:brightness(1.09)}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#2b405d;color:#f1f5f9}.danger{background:#5a2730;color:#fee2e2}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0}.viewport{min-height:460px;position:relative;overflow:hidden;background:radial-gradient(circle,#233450,#111827);border:1px solid #344968;border-radius:12px}#canvas{width:100%;height:100%;min-height:460px;display:block}.hint{position:absolute;bottom:10px;left:10px;right:10px;background:#0a1528c9;padding:10px;border-radius:8px;font-size:12px;color:#c9d7e8}.status{margin-top:15px;padding:10px;border-radius:8px;background:#20314a;color:#d7e3f5;font-size:12px;min-height:36px}.metric{font-size:27px;font-weight:800;margin:6px 0 15px;color:#f5c36a}.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #304058;font-size:13px}.small{font-size:11px;color:#a6b8cc}#objects{font-size:12px;line-height:1.8} .tag{display:inline-block;border-radius:5px;padding:2px 5px;background:#273d5b;color:#d4e2f4;font-size:11px} .error{color:#fecaca}footer{padding:15px;text-align:center;color:#93a9c4;font-size:12px}@media(max-width:1100px){.layout{grid-template-columns:1fr 1fr}.scene{grid-column:1/-1;grid-row:1}}@media(max-width:700px){.layout{display:flex;flex-direction:column}.viewport,#canvas{min-height:350px}header{padding:16px}}
-</style></head><body><header><div><h1><span class="brand">CUBI</span>KEITOR <span class="muted">/ Arquitectura reactiva</span></h1><div class="muted">Prototipo independiente · precios de demostración, no aptos para cotizar</div></div><div class="tag" id="version">rev. 0</div></header><main class="layout"><section class="panel"><h2>Configuración paramétrica</h2><div class="grid2"><div><label>Tipo de abertura</label><select id="type"><option value="window">Ventana</option><option value="door">Puerta</option></select></div><div><label>Cara del módulo</label><select id="face"><option>A</option><option>B</option><option>C</option><option>D</option></select></div><div><label>Ancho (mm)</label><input type="number" id="width" value="1200" min="300" step="10"></div><div><label>Alto (mm)</label><input type="number" id="height" value="1050" min="300" step="10"></div><div><label>Desde borde (mm)</label><input type="number" id="offset" value="500" min="100" step="10"></div><div><label>Desde suelo (mm)</label><input type="number" id="bottom" value="900" min="0" step="10"></div></div><div class="buttons"><button id="add">Agregar en cara seleccionada</button><button class="secondary" id="pick-wall">Seleccionar muro en 3D</button></div><label>Terminaciones</label><select id="finish"><option value="standard">Estándar</option><option value="sanitary">Sanitaria</option></select><div class="buttons"><button class="secondary" id="undo">↶ Deshacer</button><button class="secondary" id="redo">↷ Rehacer</button></div><h2>Aberturas del proyecto</h2><div id="objects" class="muted">Sin aberturas</div><div class="buttons"><button class="secondary" id="save">Guardar local</button><button class="secondary" id="restore">Restaurar</button><button class="secondary" id="import-legacy">Importar proyecto original (JSON)</button><input id="legacy-file" type="file" accept="application/json,.json" hidden></div><div id="status" class="status">Proyecto listo.</div></section><section class="panel scene"><h2>Modelo 3D en tiempo real</h2><div class="viewport"><div id="canvas"></div><div class="hint">Arrastra para girar · rueda para acercar · usa «Seleccionar muro en 3D» para colocar una abertura · solo se reconstruye la cara modificada</div></div><div class="small" style="margin-top:12px">Nota: rendimiento objetivo de 60 FPS; no certificado en todos los dispositivos.</div></section><section class="panel"><h2>Cubicación y presupuesto</h2><div class="muted">Resultado del Web Worker sincronizado por revisión</div><div class="small" id="quote-version">Sin calcular</div><div class="metric" id="total">Calculando...</div><div class="row"><span>Área neta de muros</span><strong id="wall-area">—</strong></div><div class="row"><span>Área de piso</span><strong id="floor-area">—</strong></div><div id="lines"></div><div class="row"><span>Subtotal</span><strong id="subtotal">—</strong></div><div class="row"><span>IVA demo (19%)</span><strong id="tax">—</strong></div><div id="warning" class="status">Cargando motor de cubicación...</div><div class="small" style="margin-top:15px">Las cantidades de placas utilizan una receta de demostración. No incluyen ingeniería detallada de perfiles, fundaciones, instalaciones ni precios reales de proveedores.</div></section></main><footer>Prototipo experimental separado del repositorio original · sin integración activa a Supabase</footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><script src="src/core.js"></script><script src="src/legacy-adapter.js"></script><script src="src/worker-controller.js"></script><script src="src/app.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CUBIKEITOR 3000 PRO+ · Enterprise Edition</title>
+  <style>
+    :root {
+      --bg: #0b132b;
+      --panel: #1c2541;
+      --border: #3a506b;
+      --text: #ffffff;
+      --muted: #8d99ae;
+      --accent: #ffd166;
+      --primary: #4cc9f0;
+      --success: #06d6a0;
+      --danger: #ef476f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    
+    header {
+      padding: 10px 20px; background: #050b1a; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    header h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; }
+    header h1 span { color: var(--accent); }
+    .badge { background: var(--panel); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; color: var(--muted); }
+
+    main { display: grid; grid-template-columns: 350px 1fr 370px; gap: 12px; padding: 12px; flex: 1; overflow: hidden; }
+    
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
+    }
+    .card h2 { font-size: 0.88rem; color: #ffffff; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 2px; }
+    .tab-btn { flex: 1; padding: 7px 4px; background: #0b132b; border: 1px solid var(--border); color: var(--muted); font-size: 0.73rem; border-radius: 6px; cursor: pointer; text-align: center; font-weight: 600; transition: 0.2s; }
+    .tab-btn.active { background: var(--primary); border-color: var(--primary); color: #0b132b; font-weight: 700; }
+
+    .tab-content { display: none; flex-direction: column; gap: 8px; }
+    .tab-content.active { display: flex; }
+
+    label { display: block; font-size: 0.73rem; color: var(--muted); margin-bottom: 2px; }
+    select, input, textarea {
+      width: 100%; padding: 7px 9px; background: #0b132b; border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text); font-size: 0.82rem;
+    }
+    textarea { height: 50px; resize: none; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    button {
+      padding: 8px 10px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.15s;
+    }
+    .btn-primary { background: var(--primary); color: #0b132b; width: 100%; font-weight: 700; }
+    .btn-accent { background: var(--accent); color: #0b132b; width: 100%; font-weight: 700; }
+    .btn-success { background: var(--success); color: #0b132b; width: 100%; font-weight: 700; }
+    .btn-secondary { background: #3a506b; color: #ffffff; }
+    .btn-danger { background: var(--danger); color: #fff; }
+
+    #viewer-container { position: relative; padding: 0; overflow: hidden; background: #050b1a; border-radius: 12px; cursor: crosshair; }
+    #canvas3d { width: 100%; height: 100%; display: block; }
+    
+    .view-toolbar {
+      position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; background: rgba(28, 37, 65, 0.95);
+      padding: 5px; border-radius: 8px; border: 1px solid var(--border); z-index: 10; backdrop-filter: blur(4px);
+    }
+    .view-toolbar button { background: transparent; color: var(--muted); padding: 5px 8px; font-size: 0.7rem; border-radius: 6px; }
+    .view-toolbar button:hover, .view-toolbar button.active { background: var(--primary); color: #0b132b; font-weight: 700; }
+
+    .selection-box { background: rgba(76, 201, 240, 0.1); border: 1px dashed var(--primary); padding: 10px; border-radius: 8px; margin-bottom: 4px; }
+    
+    .total-price { font-size: 1.7rem; font-weight: 800; color: var(--accent); margin: 2px 0; }
+    .metric-row, .budget-row {
+      display: flex; justify-content: space-between; padding: 5px 0;
+      border-bottom: 1px solid rgba(58, 80, 107, 0.5); font-size: 0.8rem;
+    }
+    .budget-row span { color: var(--muted); max-width: 65%; }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body>
+
+<header>
+  <div><h1>CUBIKEITOR <span>3000 PRO+</span> · Ecosistema CPQ Modular</h1></div>
+  <div class="badge">Chile · Industrial & Comercial</div>
+</header>
+
+<main>
+  <!-- PANEL 1: CONFIGURADOR Y PESTAÑAS -->
+  <section class="card">
+    <div class="tabs">
+      <div class="tab-btn active" onclick="switchTab(0)">1. Solución</div>
+      <div class="tab-btn" onclick="switchTab(1)">2. Elementos</div>
+      <div class="tab-btn" onclick="switchTab(2)">3. APU & Costos</div>
+    </div>
+
+    <!-- Pestaña 1: Solución y Contenedor -->
+    <div class="tab-content active" id="tab-0">
+      <h2>Tipología de Proyecto</h2>
+      <div class="form-group">
+        <label>Uso principal</label>
+        <select id="sel-uso" onchange="updateProject()">
+          <option value="oficina">Oficina Habilitada</option>
+          <option value="oficina_bano">Oficina con Medio Baño</option>
+          <option value="bodega">Bodega / Taller</option>
+          <option value="habitable">Studio Habitable (Baño + Cocina)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Modelo ISO Base</label>
+        <select id="sel-modelo" onchange="updateProject()">
+          <option value="20ft">Contenedor 20 Pies Standard (6.06m)</option>
+          <option value="20ftHC">Contenedor 20 Pies High Cube (2.89m)</option>
+          <option value="40ftHC" selected>Contenedor 40 Pies High Cube (12.19m)</option>
+        </select>
+      </div>
+      <div class="row-2">
+        <div class="form-group">
+          <label>Terminación Muros</label>
+          <select id="sel-muros" onchange="updateProject()">
+            <option value="confort">Confort (Volcanita + Lana)</option>
+            <option value="esencial">Esencial (OSB + EPS)</option>
+            <option value="sanitario">Sanitario (Panel PVC)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Terminación Piso</label>
+          <select id="sel-piso" onchange="updateProject()">
+            <option value="spc">Vinílico SPC Click</option>
+            <option value="sanitario">Vinílico Antideslizante</option>
+            <option value="porcelanato">Porcelanato R10</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Color Exterior Contenedor</label>
+        <select id="sel-color" onchange="updateProject()">
+          <option value="0x1d4ed8" selected>Azul Corporativo Brillante</option>
+          <option value="0x334155">Gris Grafito Claro</option>
+          <option value="0x059669">Verde Minero Intenso</option>
+          <option value="0xdc2626">Rojo Industrial Vivo</option>
+          <option value="0xf8fafc">Blanco Refractario</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Pestaña 2: Elementos y Catálogo 3D / Inspector -->
+    <div class="tab-content" id="tab-1">
+      <h2>Inspector de Elementos 3D</h2>
+      <div id="inspector-container">
+        <div class="selection-box" id="selection-info">
+          <label style="color: var(--primary); font-weight: bold;">Ningún objeto seleccionado</label>
+          <span style="font-size: 0.72rem; color: var(--muted);">Haz clic en cualquier muro, puerta o ventana en el visor 3D para editar sus medidas o eliminarlo.</span>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px;">
+        <h2>Asistente Flash NLP</h2>
+        <textarea id="ai-prompt" placeholder="Ej: Añadir 3 ventanas y 2 puertas...">Contenedor con 2 ventanas y una puerta</textarea>
+        <button class="btn-accent" onclick="processPrompt()" style="margin-top: 6px;">🪄 Interpretar Requerimiento</button>
+      </div>
+    </div>
+
+    <!-- Pestaña 3: APU Dinámicos y Finanzas -->
+    <div class="tab-content" id="tab-2">
+      <h2>Creador de APU Personalizados</h2>
+      <div class="form-group"><label>Nombre de Partida / Servicio</label><input type="text" id="apu-name" value="Corte estructural y refuerzo"></div>
+      <div class="row-2">
+        <div class="form-group"><label>Unidad</label><select id="apu-unit"><option value="global">Global (gl)</option><option value="ml">Metro Lineal (ml)</option><option value="m²">Metro Cuadrado (m²)</option></select></div>
+        <div class="form-group"><label>Costo Neto (CLP)</label><input type="number" id="apu-price" value="295000"></div>
+      </div>
+      <button class="btn-primary" onclick="addCustomApu()">+ Registrar APU al Proyecto</button>
+      
+      <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;">
+        <label>Margen Comercial (%)</label><input type="number" id="val-margen" value="25" onchange="updateProject()">
+        <label style="margin-top:4px;">Transporte / Flete (CLP)</label><input type="number" id="val-flete" value="150000" onchange="updateProject()">
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL 2: VISOR 3D CON RAYCASTING -->
+  <section class="card" id="viewer-container">
+    <div class="view-toolbar">
+      <button onclick="setCameraView('exterior')" class="active" id="btn-ext">Exterior</button>
+      <button onclick="setCameraView('interior')" id="btn-int">Interior</button>
+      <button onclick="setCameraView('planta')" id="btn-plan">Planta</button>
+      <button onclick="toggleDayNight()" id="btn-light">☀️ Día</button>
+    </div>
+    <canvas id="canvas3d"></canvas>
+  </section>
+
+  <!-- PANEL 3: RESUMEN COMERCIAL Y PROPUESTA -->
+  <section class="card">
+    <h2>Cotización Exprés</h2>
+    <div>
+      <div style="font-size: 0.72rem; color: var(--muted);">Total con IVA (19%)[cite: 7]</div>
+      <div class="total-price" id="lbl-total">$0</div>
+    </div>
+
+    <div style="margin-top: 4px;">
+      <div class="metric-row"><span>Área Muros Netos</span><strong id="lbl-muros">0 m²</strong></div>
+      <div class="metric-row"><span>Área Piso Útil</span><strong id="lbl-piso">0 m²</strong></div>
+    </div>
+
+    <h2>Desglose de Partidas (BOM)</h2>
+    <div id="ui-items" style="flex: 1; overflow-y: auto; max-height: 160px;"></div>
+
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
+      <button class="btn-success" onclick="window.print()">🖨️ Imprimir Propuesta / PDF</button>
+      <button class="btn-secondary" onclick="shareWhatsApp()">💬 Compartir por WhatsApp</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  const SCALE = 0.001;
+
+  let state = {
+    length: 12192, width: 2438, height: 2896, color: 0x1d4ed8,
+    margen: 25, flete: 150000,
+    nodes: { n1: { id: 'n1', x: 0, y: 0 }, n2: { id: 'n2', x: 12192, y: 0 }, n3: { id: 'n3', x: 12192, y: 2438 }, n4: { id: 'n4', x: 0, y: 2438 } },
+    walls: {
+      w1: { id: 'w1', startNodeId: 'n1', endNodeId: 'n2', height: 2896, thickness: 150 },
+      w2: { id: 'w2', startNodeId: 'n2', endNodeId: 'n3', height: 2896, thickness: 150 },
+      w3: { id: 'w3', startNodeId: 'n3', endNodeId: 'n4', height: 2896, thickness: 150 },
+      w4: { id: 'w4', startNodeId: 'n4', endNodeId: 'n1', height: 2896, thickness: 150 }
+    },
+    openings: {
+      op1: { id: 'op1', wallId: 'w1', type: 'puerta', width: 900, height: 2100, offsetFromStart: 2000, sillHeight: 0 },
+      op2: { id: 'op2', wallId: 'w3', type: 'ventana', width: 1200, height: 1000, offsetFromStart: 4000, sillHeight: 900 }
+    },
+    customApus: [{ name: 'Corte estructural y refuerzo', unit: 'global', qty: 1, price: 295000 }]
+  };
+
+  let selectedObject = null;
+
+  window.switchTab = function(idx) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+    document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+  };
+
+  window.updateProject = function() {
+    const mod = document.getElementById('sel-modelo').value;
+    let l = 12192, h = 2896;
+    if (mod === '20ft') { l = 6058; h = 2591; }
+    else if (mod === '20ftHC') { l = 6058; h = 2896; }
+    else if (mod === '40ftHC') { l = 12192; h = 2896; }
+
+    state.length = l; state.height = h;
+    state.nodes = { n1: { id: 'n1', x: 0, y: 0 }, n2: { id: 'n2', x: l, y: 0 }, n3: { id: 'n3', x: l, y: 2438 }, n4: { id: 'n4', x: 0, y: 2438 } };
+    for(let wId of Object.keys(state.walls)) { state.walls[wId].height = h; }
+
+    state.color = Number(document.getElementById('sel-color').value);
+    state.margen = Number(document.getElementById('val-margen').value);
+    state.flete = Number(document.getElementById('val-flete').value);
+
+    rebuildScene();
+    calculateBudget();
+  };
+
+  window.addCustomApu = function() {
+    const name = document.getElementById('apu-name').value;
+    const unit = document.getElementById('apu-unit').value;
+    const price = Number(document.getElementById('apu-price').value);
+    if (!name || isNaN(price)) return;
+    state.customApus.push({ name, unit, qty: 1, price });
+    calculateBudget();
+    alert('APU agregado exitosamente.');
+  };
+
+  window.processPrompt = function() {
+    const text = document.getElementById('ai-prompt').value.toLowerCase();
+    const newOpenings = {};
+    let opCounter = 1;
+    const terms = ['ventana', 'puerta', 'vano'];
+    let parsedList = [];
+
+    terms.forEach(term => {
+      const regexNum = new RegExp(`(un[oa]?|\\d+)\\s+(?:[a-záéíóú]+\\s+)*?(${term}s?)`, 'gi');
+      let match;
+      while ((match = regexNum.exec(text)) !== null) {
+        let rawQty = match[1];
+        let qty = rawQty === 'dos' ? 2 : (rawQty === 'tres' ? 3 : (rawQty === 'una' || rawQty === 'un' ? 1 : parseInt(rawQty, 10)));
+        if (isNaN(qty)) qty = 1;
+        for (let i = 0; i < qty; i++) {
+          parsedList.push({ type: term.startsWith('vano') ? 'vano' : (term.startsWith('puerta') ? 'puerta' : 'ventana') });
+        }
+      }
+    });
+
+    if (parsedList.length === 0) parsedList.push({ type: 'puerta' });
+
+    const wallIds = Object.keys(state.walls);
+    let offsetDist = 1200;
+    parsedList.forEach((item, idx) => {
+      const targetWallId = wallIds[idx % wallIds.length];
+      let width = 1200, height = 1050, sill = 900;
+      if (item.type === 'puerta') { width = 900; height = 2100; sill = 0; }
+      if (item.type === 'vano') { width = 1000; height = 2000; sill = 0; }
+
+      const opId = 'op' + opCounter++;
+      newOpenings[opId] = { id: opId, wallId: targetWallId, type: item.type, width, height, offsetFromStart: offsetDist, sillHeight: sill };
+      offsetDist += width + 800;
+    });
+
+    state.openings = newOpenings;
+    selectedObject = null;
+    rebuildScene();
+    calculateBudget();
+  };
+
+  window.shareWhatsApp = function() {
+    const total = document.getElementById('lbl-total').textContent;
+    const text = encodeURIComponent(`Hola, me interesa una cotización de contenedor modular en CUBIKEITOR 3000 PRO+ por un total de ${total}. ¿Podemos coordinar?`);
+    window.open(`https://api.whatsapp.com/send?phone=&text=${text}`, '_blank');
+  };
+
+  // --- THREE.JS VISOR & RAYCASTING ---
+  const container = document.getElementById('viewer-container');
+  const canvas = document.getElementById('canvas3d');
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0b132b);
+
+  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 300);
+  camera.position.set(12, 10, 16);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.target.set(6, 1.4, 1.2);
+  controls.update();
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(ambientLight);
+  const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+  dirLight.position.set(20, 30, 20);
+  scene.add(dirLight);
+  scene.add(new THREE.GridHelper(40, 40, 0x3a506b, 0x1c2541));
+
+  const wallMeshes = new Map();
+  const openingMeshes = new Map();
+
+  window.setCameraView = function(view) {
+    document.querySelectorAll('.view-toolbar button').forEach(b => b.classList.remove('active'));
+    if(view === 'exterior') { camera.position.set(12, 10, 16); controls.target.set(6, 1.4, 1.2); document.getElementById('btn-ext').classList.add('active'); }
+    else if(view === 'interior') { camera.position.set(6, 1.4, 1.2); controls.target.set(6, 1.4, 6); document.getElementById('btn-int').classList.add('active'); }
+    else if(view === 'planta') { camera.position.set(6, 18, 1.2); controls.target.set(6, 0, 1.2); document.getElementById('btn-plan').classList.add('active'); }
+    controls.update();
+  };
+
+  let isDay = true;
+  window.toggleDayNight = function() {
+    isDay = !isDay;
+    scene.background = new THREE.Color(isDay ? 0x0b132b : 0x030712);
+    ambientLight.intensity = isDay ? 0.8 : 0.3;
+    document.getElementById('btn-light').textContent = isDay ? '☀️ Día' : '🌙 Noche';
+  };
+
+  function rebuildScene() {
+    for (const [id, mesh] of wallMeshes) { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
+    for (const [id, mesh] of openingMeshes) { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
+    wallMeshes.clear(); openingMeshes.clear();
+
+    for (const wall of Object.values(state.walls)) {
+      const nStart = state.nodes[wall.startNodeId];
+      const nEnd = state.nodes[wall.endNodeId];
+      const dx = nEnd.x - nStart.x, dz = nEnd.y - nStart.y;
+      const length = Math.hypot(dx, dz) * SCALE;
+      const height = wall.height * SCALE;
+      const thickness = wall.thickness * SCALE;
+
+      const geom = new THREE.BoxGeometry(thickness, height, length);
+      geom.translate(0, height / 2, length / 2);
+      
+      const isSelected = selectedObject && selectedObject.type === 'wall' && selectedObject.id === wall.id;
+      const color = isSelected ? 0x4cc9f0 : state.color;
+
+      const mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.3 }));
+      mesh.position.set(nStart.x * SCALE, 0, nStart.y * SCALE);
+      mesh.rotation.y = Math.atan2(dx, dz);
+      mesh.userData = { type: 'wall', id: wall.id };
+      scene.add(mesh);
+      wallMeshes.set(wall.id, mesh);
+    }
+
+    for (const op of Object.values(state.openings)) {
+      const wall = state.walls[op.wallId];
+      if (!wall) continue;
+      const nStart = state.nodes[wall.startNodeId];
+      const nEnd = state.nodes[wall.endNodeId];
+      const dx = nEnd.x - nStart.x, dz = nEnd.y - nStart.y;
+      const wallLen = Math.hypot(dx, dz);
+      const t = (op.offsetFromStart + op.width / 2) / wallLen;
+
+      const isSelected = selectedObject && selectedObject.type === 'opening' && selectedObject.id === op.id;
+      let color = isSelected ? 0x4cc9f0 : (op.type === 'ventana' ? 0x4cc9f0 : (op.type === 'puerta' ? 0xffd166 : 0x8d99ae));
+
+      const geom = new THREE.BoxGeometry(wall.thickness * SCALE * 1.25, op.height * SCALE, op.width * SCALE);
+      const mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ color, transparent: op.type !== 'puerta', opacity: op.type === 'puerta' ? 1.0 : 0.85 }));
+      mesh.position.set((nStart.x + dx * t) * SCALE, (op.sillHeight + op.height / 2) * SCALE, (nStart.y + dz * t) * SCALE);
+      mesh.rotation.y = Math.atan2(dx, dz);
+      mesh.userData = { type: 'opening', id: op.id };
+      scene.add(mesh);
+      openingMeshes.set(op.id, mesh);
+    }
+    updateInspectorUI();
+  }
+
+  // Raycasting para selección por clics
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  canvas.addEventListener('click', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = ((event.clientX - rect.left) / canvas.clientWidth) * 2 - 1;
+    mouse.y = -((event.clientY - rect.top) / canvas.clientHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersectable = [...wallMeshes.values(), ...openingMeshes.values()];
+    const intersects = raycaster.intersectObjects(intersectable, false);
+
+    if (intersects.length > 0) {
+      selectedObject = intersects[0].object.userData;
+    } else {
+      selectedObject = null;
+    }
+    rebuildScene();
+  });
+
+  function updateInspectorUI() {
+    const box = document.getElementById('selection-info');
+    if (!selectedObject) {
+      box.innerHTML = `
+        <label style="color: var(--primary); font-weight: bold;">Ningún objeto seleccionado</label>
+        <span style="font-size: 0.72rem; color: var(--muted);">Haz clic en cualquier muro o abertura en el visor 3D para editar sus medidas o eliminarlo.</span>
+      `;
+      return;
+    }
+
+    if (selectedObject.type === 'wall') {
+      const wall = state.walls[selectedObject.id];
+      if (!wall) return;
+      box.innerHTML = `
+        <label style="color: var(--accent); font-weight: bold;">Muro: ${wall.id.toUpperCase()}</label>
+        <div class="row-2" style="margin-top: 4px;">
+          <div class="form-group"><label>Altura (mm)</label><input type="number" id="edit-wall-h" value="${wall.height}" step="50"></div>
+          <div class="form-group"><label>Espesor (mm)</label><input type="number" id="edit-wall-t" value="${wall.thickness}" step="10"></div>
+        </div>
+        <button class="btn-primary" onclick="applyWallEdit('${wall.id}')" style="margin-top:4px;">💾 Guardar Cambios</button>
+      `;
+    } else if (selectedObject.type === 'opening') {
+      const op = state.openings[selectedObject.id];
+      if (!op) return;
+      box.innerHTML = `
+        <label style="color: var(--accent); font-weight: bold;">${op.type.toUpperCase()}: ${op.id.toUpperCase()}</label>
+        <div class="row-2" style="margin-top: 4px;">
+          <div class="form-group"><label>Ancho (mm)</label><input type="number" id="edit-op-w" value="${op.width}" step="50"></div>
+          <div class="form-group"><label>Alto (mm)</label><input type="number" id="edit-op-h" value="${op.height}" step="50"></div>
+        </div>
+        <div class="row-2" style="margin-top: 4px;">
+          <div class="form-group"><label>Offset (mm)</label><input type="number" id="edit-op-off" value="${op.offsetFromStart}" step="50"></div>
+          <div class="form-group"><label>Antepecho (mm)</label><input type="number" id="edit-op-sill" value="${op.sillHeight}" step="50"></div>
+        </div>
+        <div class="row-2" style="margin-top: 4px;">
+          <button class="btn-primary" onclick="applyOpeningEdit('${op.id}')">💾 Guardar</button>
+          <button class="btn-danger" onclick="deleteOpening('${op.id}')">🗑️ Eliminar</button>
+        </div>
+      `;
+    }
+  }
+
+  window.applyWallEdit = function(wallId) {
+    const wall = state.walls[wallId];
+    if (!wall) return;
+    wall.height = Number(document.getElementById('edit-wall-h').value);
+    wall.thickness = Number(document.getElementById('edit-wall-t').value);
+    rebuildScene();
+    calculateBudget();
+  };
+
+  window.applyOpeningEdit = function(opId) {
+    const op = state.openings[opId];
+    if (!op) return;
+    op.width = Number(document.getElementById('edit-op-w').value);
+    op.height = Number(document.getElementById('edit-op-h').value);
+    op.offsetFromStart = Number(document.getElementById('edit-op-off').value);
+    op.sillHeight = Number(document.getElementById('edit-op-sill').value);
+    rebuildScene();
+    calculateBudget();
+  };
+
+  window.deleteOpening = function(opId) {
+    delete state.openings[opId];
+    selectedObject = null;
+    rebuildScene();
+    calculateBudget();
+  };
+
+  function calculateBudget() {
+    const MM2_PER_M2 = 1_000_000;
+    let totalGrossWallAreaMm2 = 0;
+    let totalOpeningsAreaMm2 = 0;
+    let totalWindowsAreaMm2 = 0;
+    let doorCount = 0;
+
+    for (const wall of Object.values(state.walls)) {
+      const nStart = state.nodes[wall.startNodeId];
+      const nEnd = state.nodes[wall.endNodeId];
+      if (!nStart || !nEnd) continue;
+      const lengthMm = Math.round(Math.hypot(nEnd.x - nStart.x, nEnd.y - nStart.y));
+      const grossAreaMm2 = lengthMm * wall.height;
+
+      let wallOpeningsMm2 = 0;
+      for (const op of Object.values(state.openings)) {
+        if (op.wallId === wall.id) {
+          const opAreaMm2 = op.width * op.height;
+          wallOpeningsMm2 += opAreaMm2;
+          if (op.type === 'ventana') totalWindowsAreaMm2 += opAreaMm2;
+          if (op.type === 'puerta') doorCount += 1;
+        }
+      }
+      totalGrossWallAreaMm2 += grossAreaMm2;
+      totalOpeningsAreaMm2 += wallOpeningsMm2;
+    }
+
+    const netWallM2 = Math.max(0, totalGrossWallAreaMm2 - totalOpeningsAreaMm2) / MM2_PER_M2;
+    const floorM2 = (state.length * state.width) / MM2_PER_M2;
+
+    let items = [
+      { name: 'Estructura Chapa Acanalada ISO', qty: `${netWallM2.toFixed(1)} m²`, subtotal: Math.round(netWallM2 * 28000) },
+      { name: 'Kit Aislación & Revestimiento', qty: `${netWallM2.toFixed(1)} m²`, subtotal: Math.round(netWallM2 * 18000) },
+      { name: 'Piso SPC / Terciado Marino', qty: `${floorM2.toFixed(1)} m²`, subtotal: Math.round(floorM2 * 22000) }
+    ];
+
+    if (totalWindowsAreaMm2 > 0) {
+      const wM2 = totalWindowsAreaMm2 / MM2_PER_M2;
+      items.push({ name: 'Ventanas Termopanel PVC', qty: `${wM2.toFixed(1)} m²`, subtotal: Math.round(wM2 * 145000) });
+    }
+    if (doorCount > 0) {
+      items.push({ name: 'Puertas de Seguridad', qty: `${doorCount} un.`, subtotal: doorCount * 125000 });
+    }
+
+    state.customApus.forEach(apu => {
+      items.push({ name: `🛠️ ${apu.name}`, qty: `${apu.qty} ${apu.unit}`, subtotal: apu.price * apu.qty });
+    });
+
+    let subtotalNeto = items.reduce((acc, it) => acc + it.subtotal, 0);
+    subtotalNeto += state.flete;
+    
+    const margenFactor = 1 + (state.margen / 100);
+    const totalNetoComercial = Math.round(subtotalNeto * margenFactor);
+    const iva = Math.round(totalNetoComercial * 0.19);
+    const totalFinal = totalNetoComercial + iva;
+
+    document.getElementById('lbl-total').textContent = '$' + totalFinal.toLocaleString('es-CL');
+    document.getElementById('lbl-muros').textContent = netWallM2.toFixed(1) + ' m²';
+    document.getElementById('lbl-piso').textContent = floorM2.toFixed(1) + ' m²';
+
+    document.getElementById('ui-items').innerHTML = items.map(it => `
+      <div class="budget-row"><span>${it.name} (${it.qty})</span><strong>$${it.subtotal.toLocaleString('es-CL')}</strong></div>
+    `).join('') + `
+      <div class="budget-row"><span>Flete / Transporte</span><strong>$${state.flete.toLocaleString('es-CL')}</strong></div>
+      <div class="budget-row"><span>IVA (19%)[cite: 7]</span><strong>$${iva.toLocaleString('es-CL')}</strong></div>
+    `;
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+  }
+
+  updateProject();
+  animate();
+})();
+</script>
+</body>
+</html>
