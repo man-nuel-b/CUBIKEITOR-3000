@@ -26,6 +26,7 @@ jobs:
           node --check src/worker-controller.js
           node --check src/cost-worker.js
           node --check src/floor-plan-core.js
+          node --check src/snap-engine.js
           node --check src/vector-wall-mesh.js
           node --check src/wall-cutouts.js
           node --check src/vector-opening-mesh.js
@@ -38,5 +39,6 @@ jobs:
           test -f dist/src/core.js
           test -f dist/floor-plan.html
           test -f dist/src/vector-wall-mesh.js
+          test -f dist/src/snap-engine.js
           test -f dist/src/wall-cutouts.js
           test -f dist/src/vector-opening-mesh.js
