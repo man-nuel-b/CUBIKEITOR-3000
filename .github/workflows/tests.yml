@@ -1,0 +1,29 @@
+name: Cubikeitor 3000 - pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar sintaxis
+        run: |
+          node --check src/core.js
+          node --check src/app.js
+          node --check src/legacy-adapter.js
+          node --check src/worker-controller.js
+          node --check src/cost-worker.js
+      - name: Ejecutar pruebas
+        run: node --test tests/*.test.cjs
