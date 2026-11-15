@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUBIKEITOR 3000 · Planta libre 3D</title><style>
+:root{font-family:system-ui,sans-serif;color:#eaf0fb;background:#101a2a}*{box-sizing:border-box}body{margin:0}header{padding:18px 24px;border-bottom:1px solid #324258;background:#111d31}h1{font-size:21px;margin:0 0 6px}p{font-size:13px;color:#9fb1cc;margin:4px 0}main{padding:18px;display:grid;grid-template-columns:minmax(250px,300px) minmax(280px,1fr);gap:15px}.panel{padding:18px;background:#19283d;border:1px solid #314760;border-radius:15px}label{display:block;margin:16px 0 6px;font-size:13px}input{width:100%;padding:11px;border-radius:8px;border:1px solid #4d647d;background:#0d1b30;color:#fff}button{padding:12px 14px;border:0;border-radius:8px;background:#f7bc61;color:#132032;cursor:pointer;font-weight:bold;margin-top:14px}#viewport{height:min(73vh,740px);min-height:400px}canvas{display:block}#status{margin-top:12px;color:#d5e3f4;font-size:13px}.error{color:#ffb4b4!important}a{color:#f7c877}small{display:block;margin-top:15px;color:#9fb1cc;line-height:1.5}@media(max-width:760px){main{grid-template-columns:1fr}#viewport{height:55vh;min-height:340px}}
+</style></head>
+<body><header><h1>CUBIKEITOR 3000 · Planta libre 3D</h1><p>Vista experimental de muros vectoriales — estado en milímetros, mallas en metros</p></header>
+<main><section class="panel">
+<h2>Prueba de geometría</h2><p>Mueve el nodo N2 para cambiar simultáneamente los muros W1 y W2.</p>
+<label for="nx">Nodo N2 · X (mm)</label><input id="nx" type="number" value="6000" min="1300" max="10000" step="100">
+<label for="ny">Nodo N2 · Y del plano (mm)</label><input id="ny" type="number" value="0" min="-3000" max="3000" step="100">
+<button id="apply">Actualizar nodos y mallas</button>
+<button id="reset" style="background:#37506c;color:white">Restablecer planta</button>
+<div id="status">Preparando escena...</div>
+<small>Esta vista dibuja cuatro muros macizos. La ventana del estado permanece registrada en los metadatos, pero su hueco 3D todavía no está recortado. No representa un presupuesto comercial.</small>
+<p><a href="./">Volver al configurador anterior</a></p>
+</section>
+<section class="panel"><h2>Visor de muros vectoriales</h2><div id="viewport"></div><p>Arrastra para girar · Rueda para acercar · Selección por clic identifica el muro</p></section></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="src/floor-plan-core.js"></script><script src="src/vector-wall-mesh.js"></script>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,VM=window.CubikeitorVectorWalls;
+function status(s,error=false){$('status').textContent=s;$('status').className=error?'error':'';}
+if(!window.THREE||!THREE.OrbitControls){status('Three.js no pudo cargarse. Comprueba la conexión.',true);return;}
+const mount=$('viewport'),scene=new THREE.Scene();scene.background=new THREE.Color('#18283e');
+const camera=new THREE.PerspectiveCamera(48,1,.1,150);camera.position.set(10,9,12);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));mount.append(renderer.domElement);
+const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(3,1,2);
+scene.add(new THREE.HemisphereLight(0xffffff,0x38516a,1.3));
+const sun=new THREE.DirectionalLight(0xffffff,.8);sun.position.set(7,14,5);scene.add(sun);
+scene.add(new THREE.GridHelper(22,22,0x7b8aa0,0x344960));
+let state=JSON.parse(JSON.stringify(FP.initialProjectState));const wallMeshes=new Map();
+function redraw(){for(const wall of Object.values(state.walls)){
+ const old=wallMeshes.get(wall.id);
+ const mesh=old?VM.updateVectorWallMesh(old,wall,state.nodes,THREE):VM.createVectorWallMesh(wall,state.nodes,THREE);
+ if(!old)scene.add(mesh);
+ wallMeshes.set(wall.id,mesh);
+}status('Revisión '+state.revision+' · '+wallMeshes.size+' muros actualizados.');}
+$('apply').onclick=()=>{try{const x=Number($('nx').value),y=Number($('ny').value);state=FP.moveNode(state,'n2',{x,y});redraw();}catch(e){status(e.message,true);}};
+$('reset').onclick=()=>{state=JSON.parse(JSON.stringify(FP.initialProjectState));$('nx').value=6000;$('ny').value=0;redraw();};
+renderer.domElement.addEventListener('click',e=>{const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const ray=new THREE.Raycaster();ray.setFromCamera(p,camera);const hits=ray.intersectObjects([...wallMeshes.values()]);if(hits.length){const id=hits[0].object.userData.wallId;const m=FP.getWallMetrics(state,id);status('Muro '+id+' · largo '+m.lengthMm.toFixed(0)+' mm · área neta '+m.netAreaM2.toFixed(2)+' m²');}});
+function resize(){const w=mount.clientWidth,h=mount.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(mount);resize();redraw();
+(function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)})();
+})();
+</script></body></html>
