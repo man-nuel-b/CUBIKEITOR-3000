@@ -14,7 +14,7 @@ function parseOrder(text){
  let match,prior=0,items=[],summary={ventana:0,puerta:0,vano:0};
  while((match=regex.exec(value))){
   const type=names[match[1]],before=value.slice(prior,match.index);
-  const countMatch=before.match(/(?:^|[^a-z0-9])(\d{1,3}|un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|dieciseis|diecisiete|dieciocho|diecinueve|veinte)(?:\s+[a-z]+){0,3}\s*$/);
+  const countMatch=before.match(/(?:^|[^a-z0-9])(\d{1,3}|un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|dieciseis|diecisiete|dieciocho|diecinueve|veinte)\s*$/);
   const quantity=countMatch?(amounts[countMatch[1]]??Number(countMatch[1])):1;
   if(!Number.isSafeInteger(quantity)||quantity<1||quantity>24)throw Error('Cantidad inválida o superior a 24 por elemento');
   if(items.length+quantity>24)throw Error('Máximo de 24 aberturas por pedido');
