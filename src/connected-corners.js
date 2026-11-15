@@ -44,13 +44,32 @@ function moveConnectedNode(state,nodeId,x,y,options={}){
  requireValid(Number.isFinite(x)&&Number.isFinite(y),'Coordenadas no finitas');
  const result=snap.getSnappedPosition(x,y,state.nodes,state.walls,nodeId,options.threshold??150);
  // Merging a distinct node needs full graph rewriting. Never produce overlapping IDs.
- requireValid(result.snappedTo?.type!=='node','Ya existe un nodo en ese vértice; no se puede fusionar sin actualizar el grafo');
  requireValid(result.snappedTo?.type!=='wall','Una unión en T requiere dividir el muro antes de imantar');
- const next=core.moveNode(state,nodeId,{x:result.x,y:result.y});
+ let next;
+ if(result.snappedTo?.type==='node'){
+  // Topological merge: replace every occurrence of old ID with the target ID.
+  const targetId=result.snappedTo.id;
+  next=JSON.parse(JSON.stringify(state));
+  for(const wall of Object.values(next.walls)){
+   if(wall.startNodeId===nodeId)wall.startNodeId=targetId;
+   if(wall.endNodeId===nodeId)wall.endNodeId=targetId;
+  }
+  delete next.nodes[nodeId];
+  next.revision++;
+  core.validateProject(next); // rejects zero-length incident walls
+  const edgeKeys=new Set();
+  for(const wall of Object.values(next.walls)){
+   const key=[wall.startNodeId,wall.endNodeId].sort().join(':');
+   requireValid(!edgeKeys.has(key),'La fusión duplicaría un muro existente');
+   edgeKeys.add(key);
+  }
+ }else{
+  next=core.moveNode(state,nodeId,{x:result.x,y:result.y});
+ }
  const ids=options.perimeterWallIds||['w1','w2','w3','w4'];
  if(ids.every(id=>!!next.walls[id]))validateClosedPerimeter(next,ids);
  // Manual topology edits are no longer the chosen ISO normalized rectangle.
- if(next.metadata?.model&&(state.nodes[nodeId].x!==result.x||state.nodes[nodeId].y!==result.y)){
+ if(next.metadata?.model&&(result.snappedTo?.type==='node'||state.nodes[nodeId].x!==result.x||state.nodes[nodeId].y!==result.y)){
   next.metadata={...next.metadata};delete next.metadata.model;delete next.metadata.nominalExteriorDimensionsMm;
  }
  return {state:next,snappedTo:result.snappedTo};
