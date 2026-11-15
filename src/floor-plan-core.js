@@ -44,10 +44,10 @@ function getWallGeometry(state,wallId){
 }
 function validateOpening(state,o,ignoreId){
  requireValid(o&&goodId(o.id)&&goodId(o.wallId),'ID de abertura o muro inválido');
- requireValid(['ventana','puerta'].includes(o.type),'Tipo de abertura inválido');
+ requireValid(['ventana','puerta','vano'].includes(o.type),'Tipo de abertura inválido');
  requireValid(integer(o.width,300,6000)&&integer(o.height,300,5000),'Dimensiones de abertura inválidas');
  requireValid(integer(o.offsetFromStart,0,1000000)&&integer(o.sillHeight,0,10000),'Ubicación de abertura inválida');
- requireValid(o.type!=='puerta'||o.sillHeight===0,'Una puerta debe iniciar a nivel de piso');
+ requireValid((o.type!=='puerta'&&o.type!=='vano')||o.sillHeight===0,'Una puerta debe iniciar a nivel de piso');
  const wall=getWallGeometry(state,o.wallId);
  const MARGIN=100,SEPARATION=80;
  requireValid(o.offsetFromStart>=MARGIN&&o.offsetFromStart+o.width<=wall.lengthMm-MARGIN,'La abertura excede el largo disponible del muro');
