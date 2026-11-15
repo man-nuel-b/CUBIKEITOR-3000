@@ -1,7 +1,4 @@
 node_modules/
+.DS_Store
 dist/
 .env
-.env.*
-!.env.example
-.DS_Store
-Thumbs.db
