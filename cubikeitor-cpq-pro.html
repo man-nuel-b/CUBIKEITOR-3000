@@ -145,8 +145,15 @@ renderer.domElement.addEventListener('pointermove',e=>{
  const x=initialNode.x+(world.x-drag.initial.x)*1000,y=initialNode.y+(world.z-drag.initial.z)*1000;
  try{
   const move=CORNERS.moveConnectedNode(drag.start,drag.nodeId,x,y,{core:FP,snap:SNAP,threshold:150});
-  if(move.state.nodes[drag.nodeId].x===state.nodes[drag.nodeId].x&&move.state.nodes[drag.nodeId].y===state.nodes[drag.nodeId].y)return;
+  const newNode=move.state.nodes[drag.nodeId],oldNode=state.nodes[drag.nodeId];
+  if(newNode&&oldNode&&newNode.x===oldNode.x&&newNode.y===oldNode.y)return;
   state=move.state;drag.last=move;drag.moved=true;
+  if(!newNode){
+   // Snapping merged this endpoint into a shared node; its previous ID no longer exists.
+   render();finishDrag(e,false);down=null;
+   $('hud').textContent='Extremo conectado al nodo '+move.snappedTo.id+' · esquina cerrada';
+   return;
+  }
   render();
   $('error').textContent='';
   $('hud').textContent='Nodo '+drag.nodeId.toUpperCase()+' → '+state.nodes[drag.nodeId].x+', '+state.nodes[drag.nodeId].y+' mm'+(move.snappedTo?' · imantado a '+move.snappedTo.id:'');
