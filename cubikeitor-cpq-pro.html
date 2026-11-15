@@ -1,7 +1,7 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CUBIKEITOR 3000 PRO · Inspector 3D</title><style>
 :root{font-family:system-ui;background:#0f172a;color:#f8fafc}*{box-sizing:border-box}body{margin:0}header{padding:16px 22px;background:#0b1120;border-bottom:1px solid #334155;display:flex;justify-content:space-between}header strong{color:#f59e0b}header span{font-size:12px;color:#94a3b8}main{display:grid;grid-template-columns:310px minmax(320px,1fr) 310px;gap:12px;padding:12px;height:calc(100vh - 60px)}section{border:1px solid #334155;background:#1e293b;border-radius:12px;padding:17px;overflow:auto;min-height:0}h2{font-size:16px;border-bottom:1px solid #334155;padding-bottom:10px}h3{font-size:14px;color:#cbd5e1;margin-top:23px}label{display:block;color:#94a3b8;font-size:12px;margin:9px 0 5px}input,select{width:100%;padding:9px;background:#0f172a;border:1px solid #475569;color:white;border-radius:7px}button{background:#f59e0b;border:none;padding:11px 13px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;color:#111827}.secondary{background:#475569;color:white}button:disabled{opacity:.4}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.viewport{position:relative;padding:0;overflow:hidden}#view{height:100%;width:100%}.hud{position:absolute;bottom:12px;left:12px;right:12px;padding:10px;border-radius:9px;background:#0b1422e6;color:#cbd5e1;font-size:12px}.price{color:#fbbf24;font-size:31px;font-weight:800}.line{padding:9px 0;border-bottom:1px solid #334155;font-size:12px;display:flex;justify-content:space-between;gap:8px}.line span{color:#cbd5e1}.line strong{text-align:right}.muted{font-size:12px;color:#94a3b8;line-height:1.5}.error{color:#fda4af;font-size:12px;min-height:14px}a{color:#fbbf24}@media(max-width:1000px){main{grid-template-columns:270px 1fr;height:auto}.budget{grid-column:1/-1}.viewport{height:65vh}}@media(max-width:660px){main{display:flex;flex-direction:column}.viewport{height:55vh;min-height:330px}header{flex-wrap:wrap;gap:8px}}
 .inspector{border:1px solid #365e89;border-radius:10px;background:#142b46;padding:12px;margin-bottom:18px}.inspector h3{margin:0 0 8px}.danger{background:#b91c1c;color:white}.inspector .muted{margin:8px 0}@media print{header,.viewport,main>section:first-child{display:none!important}main{display:block;height:auto}.budget{color:#111;background:white;border:none}.muted{color:#555}}</style></head><body><header><div><strong>CUBIKEITOR 3000</strong> · PRO / Inspector 3D interactivo</div><span id="revision">Revisión 0</span></header><main>
-<section><h2>🎯 Inspector de elementos 3D</h2><div class="inspector" id="inspector"><p class="muted">Haz clic en un muro, puerta o ventana para seleccionarlo y editarlo.</p></div><h2>📦 Modelos de contenedor</h2>
+<section><h2>🎯 Inspector de elementos 3D</h2><div class="inspector" id="inspector"><p class="muted">Haz clic en un muro, puerta o ventana para editarlo. Arrastra los marcadores dorados de las esquinas para mover los dos muros conectados.</p></div><h2>📦 Modelos de contenedor</h2>
 <label for="iso-model">Tipología base</label>
 <select id="iso-model"><option value="20ft">Contenedor 20 ft (6058 × 2438 × 2591 mm)</option><option value="40ft">Contenedor 40 ft (12192 × 2438 × 2591 mm)</option><option value="20ftHC">20 ft High Cube ref. (6058 × 2438 × 2896 mm)</option><option value="oficinaModular">Oficina 6 × 3 m (6000 × 3000 × 2600 mm)</option></select>
 <button class="secondary" id="iso-apply">Cargar modelo seleccionado</button>
@@ -14,9 +14,9 @@
 <h3>2. Insertar abertura</h3><div class="two"><div><label>Tipo</label><select id="type"><option value="ventana">Ventana</option><option value="puerta">Puerta</option><option value="vano">Vano libre</option></select></div><div><label>Muro destino</label><select id="target"></select></div><div><label>Ancho (mm)</label><input type="number" id="width" value="1200"></div><div><label>Alto (mm)</label><input type="number" id="height" value="1050"></div><div><label>Desde inicio (mm)</label><input type="number" id="offset" value="2200"></div><div><label>Antepecho (mm)</label><input type="number" id="sill" value="900"></div></div><button id="add-opening">+ Insertar abertura</button><div class="two"><button class="secondary" id="undo" disabled>↶ Deshacer</button><button class="secondary" id="redo" disabled>↷ Rehacer</button></div><p class="error" id="error"></p><p class="muted">Imantación hasta 150 mm. Las uniones en T requieren dividir previamente el muro de apoyo; esta versión las detecta y avisa.</p><a href="./">Volver al visor principal</a></section>
 <section class="viewport"><div id="view"></div><div id="hud" class="hud">Arrastra para girar · rueda para acercar · clic para seleccionar un muro</div></section>
 <section class="budget"><h2>Cubicación y presupuesto referencial</h2><p class="muted">Precios unitarios de demostración, no incluye estructura portante certificada, mano de obra, flete ni ingeniería.</p><div class="price" id="total">$0</div><button class="secondary" onclick="window.print()">Imprimir / Guardar como PDF</button><h3>Dimensiones exteriores nominales</h3><div class="line"><span>Modelo</span><strong id="model-label">—</strong></div><div class="line"><span>Largo × ancho × alto</span><strong id="dimensions">—</strong></div><h3>Métricas geométricas</h3><div class="line"><span>Muros brutos</span><strong id="gross">—</strong></div><div class="line"><span>Aberturas</span><strong id="holes">—</strong></div><div class="line"><span>Muros netos</span><strong id="net">—</strong></div><div class="line"><span>Superficie de planta exterior</span><strong id="floor">—</strong></div><h3>Materiales estimados</h3><div id="items"></div><div class="line"><span>Subtotal</span><strong id="subtotal">—</strong></div><div class="line"><span>IVA 19%</span><strong id="iva">—</strong></div><p class="muted">La superficie de planta corresponde al perímetro exterior inicial; NO corresponde al área útil interior. No calcula múltiples recintos ni refuerzos estructurales.</p></section>
-</main><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><script src="src/inspector-core.js"></script><script src="src/cpq-parser.js"></script><script src="src/iso-presets.js"></script><script src="src/iso-structure.js"></script><script src="src/floor-plan-core.js"></script><script src="src/snap-engine.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
+</main><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><script src="src/connected-corners.js"></script><script src="src/inspector-core.js"></script><script src="src/cpq-parser.js"></script><script src="src/iso-presets.js"></script><script src="src/iso-structure.js"></script><script src="src/floor-plan-core.js"></script><script src="src/snap-engine.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
 <script>(function(){'use strict';
-const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,CPQ=window.CubikeitorCPQ,ISO=window.CubikeitorISO,INS=window.CubikeitorInspector,STRUCT=window.CubikeitorISOStructure,SNAP=window.CubikeitorSnap,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
+const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,CPQ=window.CubikeitorCPQ,ISO=window.CubikeitorISO,INS=window.CubikeitorInspector,CORNERS=window.CubikeitorCorners,STRUCT=window.CubikeitorISOStructure,SNAP=window.CubikeitorSnap,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
 const clone=x=>JSON.parse(JSON.stringify(x));let state=ISO.buildPreset("20ft"),past=[],future=[],selected=null;const fmt=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
 const integer=id=>{const value=Number($(id).value);if(!Number.isSafeInteger(value))throw Error('Valor inválido (mm enteros): '+id);return value;};
 const nextId=(prefix,items)=>{let i=1;while(Object.hasOwn(items,prefix+i))i++;return prefix+i;};
@@ -72,7 +72,22 @@ $('undo').onclick=()=>{if(!past.length)return;future.push(state);state={...past.
 $('redo').onclick=()=>{if(!future.length)return;past.push(state);state={...future.pop(),revision:state.revision+1};render();};
 if(!window.THREE||!THREE.OrbitControls){$('error').textContent='Three.js no se cargó. Comprueba tu conexión.';return;}
 const mount=$('view'),scene=new THREE.Scene();scene.background=new THREE.Color(0x101e31);const camera=new THREE.PerspectiveCamera(48,1,.1,150);camera.position.set(10,9,12);const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));mount.append(renderer.domElement);const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(3,1,2);scene.add(new THREE.HemisphereLight(0xffffff,0x3f506d,1.2));const sunlight=new THREE.DirectionalLight(0xffffff,.8);sunlight.position.set(7,14,5);scene.add(sunlight);scene.add(new THREE.GridHelper(22,22,0x7b8aa0,0x344960));
-const wallMeshes=new Map(),openingMeshes=new Map();let structure=null,lastCameraModel=null;
+const wallMeshes=new Map(),openingMeshes=new Map(),nodeHandles=new Map();let structure=null,lastCameraModel=null;
+function updateNodeHandles(){
+ const activeIds=new Set(Object.values(state.walls).flatMap(w=>[w.startNodeId,w.endNodeId]));
+ for(const [id,handle] of nodeHandles)if(!activeIds.has(id)){scene.remove(handle);handle.geometry.dispose();handle.material.dispose();nodeHandles.delete(id);}
+ for(const id of activeIds){
+  const n=state.nodes[id];if(!n)continue;
+  let mesh=nodeHandles.get(id);
+  if(!mesh){
+   mesh=new THREE.Mesh(new THREE.SphereGeometry(.17,14,10),new THREE.MeshStandardMaterial({color:0xf59e0b,emissive:0x7a3800,metalness:.2,roughness:.5,depthTest:false}));
+   mesh.renderOrder=30;mesh.userData={type:'corner',nodeId:id};
+   scene.add(mesh);nodeHandles.set(id,mesh);
+  }
+  const top=Math.max(0,...Object.values(state.walls).filter(w=>w.startNodeId===id||w.endNodeId===id).map(w=>w.height))/1000;
+  mesh.position.set(n.x/1000,top+.20,n.y/1000);
+ }
+}
 function updateScene(){
  if(structure){scene.remove(structure);STRUCT.disposeFrame(structure);structure=null;}
  if(state.metadata?.model){structure=STRUCT.createISOFrame(ISO.getDimensions(state.metadata.model),THREE);scene.add(structure);}for(const [id,old] of wallMeshes)if(!state.walls[id]){scene.remove(old);WC.disposeWallGroup(old);wallMeshes.delete(id);}
@@ -95,24 +110,65 @@ function highlight(){
  for(const group of wallMeshes.values())group.traverse(o=>{if(!o.isMesh)return;o.material.color.setHex(selected?.type==='wall'&&selected.id===o.userData?.wallId?0xfbbf24:0xf0f0f0);});
  for(const m of openingMeshes.values())m.material.color.setHex(selected?.type==='opening'&&selected.id===m.userData?.openingId?0xfbbf24:(m.userData?.openingKind==='ventana'?0x88ccff:0x8b5a2b));
 }
-function render(){FP.validateProject(state);updateScene();if(!validSelection())selected=null;highlight();inspect();if(state.metadata?.model!==lastCameraModel){lastCameraModel=state.metadata?.model;const dims=lastCameraModel?ISO.getDimensions(lastCameraModel):null;if(dims){const len=dims.length/1000,width=dims.width/1000;controls.target.set(len/2,1.2,width/2);camera.position.set(len/2+Math.max(6,len*.65),Math.max(6,len*.5),width/2+Math.max(7,len*.75));controls.update();}}const d=state.metadata?.model?ISO.getDimensions(state.metadata.model):null;$('model-label').textContent=d?d.label:'Planta libre';$('dimensions').textContent=d?d.length+' × '+d.width+' × '+d.height+' mm':'Variable';$('model-info').textContent=d?'Dimensiones exteriores nominales: '+d.length+' × '+d.width+' × '+d.height+' mm. La estructura 3D es ilustrativa.':'Planta sin tipología definida';$('revision').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros';$('undo').disabled=!past.length;$('redo').disabled=!future.length;
+function render(){FP.validateProject(state);updateScene();updateNodeHandles();if(!validSelection())selected=null;highlight();inspect();if(state.metadata?.model!==lastCameraModel){lastCameraModel=state.metadata?.model;const dims=lastCameraModel?ISO.getDimensions(lastCameraModel):null;if(dims){const len=dims.length/1000,width=dims.width/1000;controls.target.set(len/2,1.2,width/2);camera.position.set(len/2+Math.max(6,len*.65),Math.max(6,len*.5),width/2+Math.max(7,len*.75));controls.update();}}const d=state.metadata?.model?ISO.getDimensions(state.metadata.model):null;$('model-label').textContent=d?d.label:'Planta libre';$('dimensions').textContent=d?d.length+' × '+d.width+' × '+d.height+' mm':'Variable';$('model-info').textContent=d?'Dimensiones exteriores nominales: '+d.length+' × '+d.width+' × '+d.height+' mm. La estructura 3D es ilustrativa.':'Planta sin tipología definida';$('revision').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros';$('undo').disabled=!past.length;$('redo').disabled=!future.length;
  const select=$('target'),prev=select.value;select.replaceChildren();for(const wall of Object.values(state.walls)){const option=document.createElement('option');option.value=wall.id;const a=state.nodes[wall.startNodeId],b=state.nodes[wall.endNodeId];option.textContent=wall.id.toUpperCase()+' · '+Math.round(Math.hypot(b.x-a.x,b.y-a.y))+' mm';select.append(option);}if(state.walls[prev])select.value=prev;
  const q=calculateBudget();$('gross').textContent=q.gross.toFixed(2)+' m²';$('holes').textContent=q.holes.toFixed(2)+' m²';$('net').textContent=q.net.toFixed(2)+' m²';$('floor').textContent=q.floor.toFixed(2)+' m²';$('total').textContent=fmt(q.total);$('subtotal').textContent=fmt(q.subtotal);$('iva').textContent=fmt(q.iva);$('items').replaceChildren();
  for(const [name,quantity,cost] of q.lines){const row=document.createElement('div');row.className='line';const label=document.createElement('span');label.textContent=name+' ('+quantity+')';const value=document.createElement('strong');value.textContent=fmt(cost);row.append(label,value);$('items').append(row);}
  $('hud').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros · '+Object.keys(state.openings).length+' aberturas · arrastra para girar';
 }
-let down=null;
-renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY};});
-renderer.domElement.addEventListener('pointerup',e=>{
- if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5){down=null;return;}down=null;
+const dragPlane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
+let down=null,drag=null;
+function screenRay(e){
  const rect=renderer.domElement.getBoundingClientRect();
- const p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),ray=new THREE.Raycaster();
- ray.setFromCamera(p,camera);
- const hits=ray.intersectObjects([...openingMeshes.values(),...wallMeshes.values()],true);
+ const point=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);
+ const ray=new THREE.Raycaster();ray.setFromCamera(point,camera);return ray;
+}
+function floorPosition(ray){return ray.ray.intersectPlane(dragPlane,new THREE.Vector3());}
+renderer.domElement.addEventListener('pointerdown',e=>{
+ if(e.button!==0)return;
+ down={x:e.clientX,y:e.clientY};
+ const ray=screenRay(e),hits=ray.intersectObjects([...nodeHandles.values()],false);
+ const initialHit=floorPosition(ray);
+ if(hits.length&&initialHit){
+  const id=hits[0].object.userData.nodeId;
+  drag={nodeId:id,start:state,initial:initialHit,last:null,moved:false};
+  controls.enabled=false;
+  renderer.domElement.setPointerCapture?.(e.pointerId);
+  $('hud').textContent='Arrastrando nodo '+id.toUpperCase()+' · imantación 150 mm';
+ }
+});
+renderer.domElement.addEventListener('pointermove',e=>{
+ if(!drag)return;
+ if(Math.hypot(e.clientX-down.x,e.clientY-down.y)<3&&!drag.moved)return;
+ const world=floorPosition(screenRay(e));if(!world)return;
+ const initialNode=drag.start.nodes[drag.nodeId];
+ const x=initialNode.x+(world.x-drag.initial.x)*1000,y=initialNode.y+(world.z-drag.initial.z)*1000;
+ try{
+  const move=CORNERS.moveConnectedNode(drag.start,drag.nodeId,x,y,{core:FP,snap:SNAP,threshold:150});
+  if(move.state.nodes[drag.nodeId].x===state.nodes[drag.nodeId].x&&move.state.nodes[drag.nodeId].y===state.nodes[drag.nodeId].y)return;
+  state=move.state;drag.last=move;drag.moved=true;
+  render();
+  $('error').textContent='';
+  $('hud').textContent='Nodo '+drag.nodeId.toUpperCase()+' → '+state.nodes[drag.nodeId].x+', '+state.nodes[drag.nodeId].y+' mm'+(move.snappedTo?' · imantado a '+move.snappedTo.id:'');
+ }catch(error){$('hud').textContent='Movimiento rechazado: '+error.message;}
+});
+function finishDrag(e,cancelled){
+ if(!drag)return false;
+ const current=drag;drag=null;controls.enabled=true;
+ if(e&&renderer.domElement.hasPointerCapture?.(e.pointerId))renderer.domElement.releasePointerCapture(e.pointerId);
+ if(cancelled){state=current.start;render();$('hud').textContent='Movimiento cancelado';}
+ else if(current.moved){past.push(current.start);future=[];render();$('hud').textContent='Nodo '+current.nodeId.toUpperCase()+' actualizado; muros conectados sincronizados';}
+ return true;
+}
+renderer.domElement.addEventListener('pointerup',e=>{
+ if(finishDrag(e,false)){down=null;return;}
+ if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5){down=null;return;}down=null;
+ const hits=screenRay(e).intersectObjects([...openingMeshes.values(),...wallMeshes.values()],true);
  selected=INS.resolveHit(hits,state);
  if(selected?.type==='wall')$('target').value=selected.id;
  render();
 });
+renderer.domElement.addEventListener('pointercancel',e=>{finishDrag(e,true);down=null;});
 
 function resize(){const w=mount.clientWidth,h=mount.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(mount);else window.addEventListener('resize',resize);resize();render();(function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)})();})();
 </script></body></html>
