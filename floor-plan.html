@@ -10,18 +10,22 @@
 <label for="ny">Nodo N2 · Y del plano (mm)</label><input id="ny" type="number" value="0" min="-3000" max="3000" step="100">
 <button id="apply">Actualizar nodos y mallas</button>
 <button id="reset" style="background:#37506c;color:white">Restablecer planta</button>
+<label for="op-type">Nueva abertura</label><select id="op-type" style="width:100%;background:#0d1b30;color:white;padding:10px"><option value="ventana">Ventana</option><option value="puerta">Puerta</option></select>
+<label for="op-wall">Muro</label><select id="op-wall" style="width:100%;background:#0d1b30;color:white;padding:10px"><option value="w1">W1</option><option value="w2">W2</option><option value="w3">W3</option><option value="w4">W4</option></select>
+<label for="op-offset">Distancia desde inicio (mm)</label><input id="op-offset" type="number" value="2200" min="100" step="100">
+<button id="add-opening">Agregar abertura y recortar muro</button>
 <div id="status">Preparando escena...</div>
-<small>Esta vista dibuja cuatro muros macizos. La ventana del estado permanece registrada en los metadatos, pero su hueco 3D todavía no está recortado. No representa un presupuesto comercial.</small>
+<small>Las aberturas ahora recortan realmente el muro y se muestran como vidrio o puerta de demostración. La cubicación comercial y los perfiles de marcos todavía no están incluidos.</small>
 <p><a href="./">Volver al configurador anterior</a></p>
 </section>
 <section class="panel"><h2>Visor de muros vectoriales</h2><div id="viewport"></div><p>Arrastra para girar · Rueda para acercar · Selección por clic identifica el muro</p></section></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="src/floor-plan-core.js"></script><script src="src/vector-wall-mesh.js"></script>
+<script src="src/floor-plan-core.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,VM=window.CubikeitorVectorWalls;
+const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
 function status(s,error=false){$('status').textContent=s;$('status').className=error?'error':'';}
 if(!window.THREE||!THREE.OrbitControls){status('Three.js no pudo cargarse. Comprueba la conexión.',true);return;}
 const mount=$('viewport'),scene=new THREE.Scene();scene.background=new THREE.Color('#18283e');
@@ -31,16 +35,29 @@ const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enab
 scene.add(new THREE.HemisphereLight(0xffffff,0x38516a,1.3));
 const sun=new THREE.DirectionalLight(0xffffff,.8);sun.position.set(7,14,5);scene.add(sun);
 scene.add(new THREE.GridHelper(22,22,0x7b8aa0,0x344960));
-let state=JSON.parse(JSON.stringify(FP.initialProjectState));const wallMeshes=new Map();
-function redraw(){for(const wall of Object.values(state.walls)){
- const old=wallMeshes.get(wall.id);
- const mesh=old?VM.updateVectorWallMesh(old,wall,state.nodes,THREE):VM.createVectorWallMesh(wall,state.nodes,THREE);
- if(!old)scene.add(mesh);
- wallMeshes.set(wall.id,mesh);
-}status('Revisión '+state.revision+' · '+wallMeshes.size+' muros actualizados.');}
+let state=JSON.parse(JSON.stringify(FP.initialProjectState));const wallMeshes=new Map(),openingMeshes=new Map();
+function redraw(){
+ FP.validateProject(state);
+ for(const wall of Object.values(state.walls)){
+  const openings=Object.values(state.openings).filter(o=>o.wallId===wall.id);
+  const old=wallMeshes.get(wall.id);
+  const mesh=old?WC.updateCutWallMesh(old,wall,state.nodes,openings,THREE,VM):WC.createCutWallMesh(wall,state.nodes,openings,THREE,VM);
+  if(!old)scene.add(mesh);
+  wallMeshes.set(wall.id,mesh);
+ }
+ for(const opening of Object.values(state.openings)){
+  const wall=state.walls[opening.wallId],old=openingMeshes.get(opening.id);
+  const mesh=old?OM.updateVectorOpeningMesh(old,opening,wall,state.nodes,THREE,VM):OM.createVectorOpeningMesh(opening,wall,state.nodes,THREE,VM);
+  if(!old)scene.add(mesh);
+  openingMeshes.set(opening.id,mesh);
+ }
+ for(const [id,mesh] of openingMeshes)if(!state.openings[id]){scene.remove(mesh);mesh.geometry.dispose();mesh.material.dispose();openingMeshes.delete(id);}
+ status('Revisión '+state.revision+' · '+wallMeshes.size+' muros · '+openingMeshes.size+' aberturas con recorte 3D.');
+}
 $('apply').onclick=()=>{try{const x=Number($('nx').value),y=Number($('ny').value);state=FP.moveNode(state,'n2',{x,y});redraw();}catch(e){status(e.message,true);}};
+$('add-opening').onclick=()=>{try{const type=$('op-type').value,wallId=$('op-wall').value,offsetFromStart=Number($('op-offset').value);let count=2,id='op2';while(state.openings[id])id='op'+(++count);const opening={id,wallId,type,width:type==='puerta'?900:1200,height:type==='puerta'?2100:1050,offsetFromStart,sillHeight:type==='puerta'?0:900};state=FP.addOpeningToWall(state,opening);redraw();}catch(e){status(e.message,true);}};
 $('reset').onclick=()=>{state=JSON.parse(JSON.stringify(FP.initialProjectState));$('nx').value=6000;$('ny').value=0;redraw();};
-renderer.domElement.addEventListener('click',e=>{const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const ray=new THREE.Raycaster();ray.setFromCamera(p,camera);const hits=ray.intersectObjects([...wallMeshes.values()]);if(hits.length){const id=hits[0].object.userData.wallId;const m=FP.getWallMetrics(state,id);status('Muro '+id+' · largo '+m.lengthMm.toFixed(0)+' mm · área neta '+m.netAreaM2.toFixed(2)+' m²');}});
+renderer.domElement.addEventListener('click',e=>{const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const ray=new THREE.Raycaster();ray.setFromCamera(p,camera);const hits=ray.intersectObjects([...wallMeshes.values()],true);if(hits.length){const id=hits[0].object.userData.wallId;const m=FP.getWallMetrics(state,id);status('Muro '+id+' · largo '+m.lengthMm.toFixed(0)+' mm · área neta '+m.netAreaM2.toFixed(2)+' m²');}});
 function resize(){const w=mount.clientWidth,h=mount.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
 new ResizeObserver(resize).observe(mount);resize();redraw();
 (function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)})();
