@@ -1,7 +1,19 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CUBIKEITOR 3000 PRO · Inspector 3D</title><style>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CUBIKEITOR 3000 PRO · APU personalizados y edición 3D</title><style>
 :root{font-family:system-ui;background:#0f172a;color:#f8fafc}*{box-sizing:border-box}body{margin:0}header{padding:16px 22px;background:#0b1120;border-bottom:1px solid #334155;display:flex;justify-content:space-between}header strong{color:#f59e0b}header span{font-size:12px;color:#94a3b8}main{display:grid;grid-template-columns:310px minmax(320px,1fr) 310px;gap:12px;padding:12px;height:calc(100vh - 60px)}section{border:1px solid #334155;background:#1e293b;border-radius:12px;padding:17px;overflow:auto;min-height:0}h2{font-size:16px;border-bottom:1px solid #334155;padding-bottom:10px}h3{font-size:14px;color:#cbd5e1;margin-top:23px}label{display:block;color:#94a3b8;font-size:12px;margin:9px 0 5px}input,select{width:100%;padding:9px;background:#0f172a;border:1px solid #475569;color:white;border-radius:7px}button{background:#f59e0b;border:none;padding:11px 13px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;color:#111827}.secondary{background:#475569;color:white}button:disabled{opacity:.4}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.viewport{position:relative;padding:0;overflow:hidden}#view{height:100%;width:100%}.hud{position:absolute;bottom:12px;left:12px;right:12px;padding:10px;border-radius:9px;background:#0b1422e6;color:#cbd5e1;font-size:12px}.price{color:#fbbf24;font-size:31px;font-weight:800}.line{padding:9px 0;border-bottom:1px solid #334155;font-size:12px;display:flex;justify-content:space-between;gap:8px}.line span{color:#cbd5e1}.line strong{text-align:right}.muted{font-size:12px;color:#94a3b8;line-height:1.5}.error{color:#fda4af;font-size:12px;min-height:14px}a{color:#fbbf24}@media(max-width:1000px){main{grid-template-columns:270px 1fr;height:auto}.budget{grid-column:1/-1}.viewport{height:65vh}}@media(max-width:660px){main{display:flex;flex-direction:column}.viewport{height:55vh;min-height:330px}header{flex-wrap:wrap;gap:8px}}
-.inspector{border:1px solid #365e89;border-radius:10px;background:#142b46;padding:12px;margin-bottom:18px}.inspector h3{margin:0 0 8px}.danger{background:#b91c1c;color:white}.inspector .muted{margin:8px 0}@media print{header,.viewport,main>section:first-child{display:none!important}main{display:block;height:auto}.budget{color:#111;background:white;border:none}.muted{color:#555}}</style></head><body><header><div><strong>CUBIKEITOR 3000</strong> · PRO / Inspector 3D interactivo</div><span id="revision">Revisión 0</span></header><main>
-<section><h2>🎯 Inspector de elementos 3D</h2><div class="inspector" id="inspector"><p class="muted">Haz clic en un muro, puerta o ventana para editarlo. Arrastra los marcadores dorados de las esquinas para mover los dos muros conectados.</p></div><h2>📦 Modelos de contenedor</h2>
+.apu-list{display:grid;gap:8px;margin:9px 0}.apu-item{padding:10px;border:1px solid #46566f;border-radius:9px;font-size:12px}.apu-item strong{display:block;color:#f3c56a;margin-bottom:4px}.apu-action{display:flex;gap:5px;flex-wrap:wrap}.apu-action button{flex:1;min-width:68px;padding:7px;font-size:11px}.apu-small{font-size:11px;color:#9fbbce}.apu-materials{min-height:98px;width:100%;background:#0f172a;border:1px solid #475569;border-radius:7px;padding:9px;color:#fff;font-size:12px}.inspector{border:1px solid #365e89;border-radius:10px;background:#142b46;padding:12px;margin-bottom:18px}.inspector h3{margin:0 0 8px}.danger{background:#b91c1c;color:white}.inspector .muted{margin:8px 0}@media print{header,.viewport,main>section:first-child{display:none!important}main{display:block;height:auto}.budget{color:#111;background:white;border:none}.muted{color:#555}}</style></head><body><header><div><strong>CUBIKEITOR 3000</strong> · PRO / Inspector 3D interactivo</div><span id="revision">Revisión 0</span></header><main>
+<section><h2>🎯 Inspector de elementos 3D</h2><div class="inspector" id="inspector"><p class="muted">Haz clic en un muro, puerta o ventana para editarlo. Arrastra los marcadores dorados de las esquinas para mover los dos muros conectados.</p></div><h2>🛠️ Gestor de APU</h2>
+<p class="muted">Biblioteca temporal por proyecto. Materiales: una línea por componente, separado por |.</p>
+<label for="apu-name">Nombre de la partida</label><input id="apu-name" maxlength="120" value="Corte estructural y refuerzo" placeholder="Nombre de APU">
+<div class="two"><div><label for="apu-unit">Unidad</label><select id="apu-unit"><option value="global">Global</option><option value="corte">Corte</option><option value="ml">Metro lineal</option><option value="m²">Metro cuadrado</option><option value="unidad">Unidad</option></select></div><div><label for="apu-qty">Cantidad para aplicar</label><input id="apu-qty" type="number" min="0.001" max="1000" step="0.001" value="1"></div></div>
+<label for="apu-materials">Material | cantidad | precio unitario neto CLP</label>
+<textarea id="apu-materials" class="apu-materials" placeholder="Perfil metálico | 2 | 12000&#10;Mano de obra referencial | 1 | 25000">Perfil tubular | 2 | 12000
+Disco de corte | 1 | 6500
+Mano de obra | 1 | 25000</textarea>
+<button id="apu-save">Guardar nuevo APU</button><button class="secondary" id="apu-reset">Limpiar formulario</button>
+<p class="muted" id="apu-feedback" aria-live="polite">Ingresa componentes y guarda tu primera partida.</p>
+<h3>Biblioteca de APU</h3><div id="apu-library" class="apu-list"></div>
+<h3>Partidas aplicadas</h3><div id="apu-applied" class="apu-list"></div>
+<h2>📦 Modelos de contenedor</h2>
 <label for="iso-model">Tipología base</label>
 <select id="iso-model"><option value="20ft">Contenedor 20 ft (6058 × 2438 × 2591 mm)</option><option value="40ft">Contenedor 40 ft (12192 × 2438 × 2591 mm)</option><option value="20ftHC">20 ft High Cube ref. (6058 × 2438 × 2896 mm)</option><option value="oficinaModular">Oficina 6 × 3 m (6000 × 3000 × 2600 mm)</option></select>
 <button class="secondary" id="iso-apply">Cargar modelo seleccionado</button>
@@ -14,10 +26,10 @@
 <h3>2. Insertar abertura</h3><div class="two"><div><label>Tipo</label><select id="type"><option value="ventana">Ventana</option><option value="puerta">Puerta</option><option value="vano">Vano libre</option></select></div><div><label>Muro destino</label><select id="target"></select></div><div><label>Ancho (mm)</label><input type="number" id="width" value="1200"></div><div><label>Alto (mm)</label><input type="number" id="height" value="1050"></div><div><label>Desde inicio (mm)</label><input type="number" id="offset" value="2200"></div><div><label>Antepecho (mm)</label><input type="number" id="sill" value="900"></div></div><button id="add-opening">+ Insertar abertura</button><div class="two"><button class="secondary" id="undo" disabled>↶ Deshacer</button><button class="secondary" id="redo" disabled>↷ Rehacer</button></div><p class="error" id="error"></p><p class="muted">Imantación hasta 150 mm. Las uniones en T requieren dividir previamente el muro de apoyo; esta versión las detecta y avisa.</p><a href="./">Volver al visor principal</a></section>
 <section class="viewport"><div id="view"></div><div id="hud" class="hud">Arrastra para girar · rueda para acercar · clic para seleccionar un muro</div></section>
 <section class="budget"><h2>Cubicación y presupuesto referencial</h2><p class="muted">Precios unitarios de demostración, no incluye estructura portante certificada, mano de obra, flete ni ingeniería.</p><div class="price" id="total">$0</div><button class="secondary" onclick="window.print()">Imprimir / Guardar como PDF</button><h3>Dimensiones exteriores nominales</h3><div class="line"><span>Modelo</span><strong id="model-label">—</strong></div><div class="line"><span>Largo × ancho × alto</span><strong id="dimensions">—</strong></div><h3>Métricas geométricas</h3><div class="line"><span>Muros brutos</span><strong id="gross">—</strong></div><div class="line"><span>Aberturas</span><strong id="holes">—</strong></div><div class="line"><span>Muros netos</span><strong id="net">—</strong></div><div class="line"><span>Superficie de planta exterior</span><strong id="floor">—</strong></div><h3>Materiales estimados</h3><div id="items"></div><div class="line"><span>Subtotal</span><strong id="subtotal">—</strong></div><div class="line"><span>IVA 19%</span><strong id="iva">—</strong></div><p class="muted">La superficie de planta corresponde al perímetro exterior inicial; NO corresponde al área útil interior. No calcula múltiples recintos ni refuerzos estructurales.</p></section>
-</main><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><script src="src/connected-corners.js"></script><script src="src/inspector-core.js"></script><script src="src/cpq-parser.js"></script><script src="src/iso-presets.js"></script><script src="src/iso-structure.js"></script><script src="src/floor-plan-core.js"></script><script src="src/snap-engine.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
+</main><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><script src="src/apu-engine.js"></script><script src="src/connected-corners.js"></script><script src="src/inspector-core.js"></script><script src="src/cpq-parser.js"></script><script src="src/iso-presets.js"></script><script src="src/iso-structure.js"></script><script src="src/floor-plan-core.js"></script><script src="src/snap-engine.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
 <script>(function(){'use strict';
-const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,CPQ=window.CubikeitorCPQ,ISO=window.CubikeitorISO,INS=window.CubikeitorInspector,CORNERS=window.CubikeitorCorners,STRUCT=window.CubikeitorISOStructure,SNAP=window.CubikeitorSnap,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
-const clone=x=>JSON.parse(JSON.stringify(x));let state=ISO.buildPreset("20ft"),past=[],future=[],selected=null;const fmt=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
+const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,CPQ=window.CubikeitorCPQ,ISO=window.CubikeitorISO,INS=window.CubikeitorInspector,APU=window.CubikeitorAPU,CORNERS=window.CubikeitorCorners,STRUCT=window.CubikeitorISOStructure,SNAP=window.CubikeitorSnap,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
+const clone=x=>JSON.parse(JSON.stringify(x));let state=APU.withDefaults(ISO.buildPreset("20ft")),past=[],future=[],selected=null,editingApuId=null;const fmt=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
 const integer=id=>{const value=Number($(id).value);if(!Number.isSafeInteger(value))throw Error('Valor inválido (mm enteros): '+id);return value;};
 const nextId=(prefix,items)=>{let i=1;while(Object.hasOwn(items,prefix+i))i++;return prefix+i;};
 function commit(change){try{const next=clone(state);change(next);next.revision=state.revision+1;FP.validateProject(next);past.push(state);future=[];state=next;render();$('error').textContent='';}catch(e){$('error').textContent=e.message;}}
@@ -49,6 +61,65 @@ function inspect(){
  const clear=document.createElement('button');clear.className='secondary';clear.textContent='Quitar selección';clear.onclick=()=>{selected=null;render();};
  container.append(save,del,clear);
 }
+function milliQuantity(value,label){
+ const n=Number(value);if(!Number.isFinite(n)||n<=0||n>1000||Math.abs(n*1000-Math.round(n*1000))>1e-6)throw Error(label+': usa hasta 3 decimales entre 0,001 y 1000');
+ return Math.round(n*1000);
+}
+function parseMaterials(text){
+ const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ if(lines.length<1||lines.length>30)throw Error('Ingresa entre 1 y 30 componentes por APU');
+ return lines.map((line,i)=>{
+  const cells=line.split('|').map(x=>x.trim());
+  if(cells.length!==3)throw Error('Línea '+(i+1)+': utiliza Nombre | Cantidad | Costo CLP');
+  const n=Number(cells[2]);
+  if(!Number.isSafeInteger(n)||n<0||n>10000000000)throw Error('Costo unitario inválido en línea '+(i+1));
+  return {name:cells[0],qtyMilli:milliQuantity(cells[1],'Cantidad línea '+(i+1)),unitCostCents:n*100};
+ });
+}
+function apuRecord(){return {name:$('apu-name').value,unit:$('apu-unit').value,materials:parseMaterials($('apu-materials').value)};}
+function clearApuForm(){editingApuId=null;$('apu-name').value='';$('apu-unit').value='global';$('apu-qty').value='1';$('apu-materials').value='';$('apu-save').textContent='Guardar nuevo APU';}
+$('apu-reset').onclick=()=>{clearApuForm();$('apu-feedback').textContent='Formulario limpio';};
+$('apu-save').onclick=()=>{
+ try{
+  const record=apuRecord(),id=editingApuId;
+  commitValidated(st=>id?APU.updateApu(st,id,record):APU.createApu(st,record));
+  if(!$('error').textContent){clearApuForm();$('apu-feedback').textContent=id?'APU actualizado':'APU agregado a la biblioteca. Ahora puedes aplicarlo al presupuesto.';}
+ }catch(e){$('error').textContent=e.message;}
+};
+function apuButton(label,onClick,kind='secondary'){const b=document.createElement('button');b.className=kind;b.textContent=label;b.onclick=onClick;return b;}
+function apuDetail(text){const p=document.createElement('div');p.className='apu-small';p.textContent=text;return p;}
+function renderApuUI(){
+ const library=$('apu-library'),applied=$('apu-applied');library.replaceChildren();applied.replaceChildren();
+ for(const apu of Object.values(state.apuLibrary||{})){
+  const card=document.createElement('div');card.className='apu-item';const name=document.createElement('strong');name.textContent=apu.name;
+  card.append(name,apuDetail(apu.unit+' · '+fmt(APU.calculateUnitCostCents(apu)/100)+' / '+apu.unit+' · '+apu.materials.length+' componentes'));
+  const actions=document.createElement('div');actions.className='apu-action';
+  actions.append(apuButton('Aplicar',()=>{
+    try{const qty=milliQuantity($('apu-qty').value,'Cantidad a aplicar');commitValidated(st=>APU.applyApu(st,apu.id,qty));}catch(e){$('error').textContent=e.message;}
+  }),apuButton('Editar',()=>{
+    editingApuId=apu.id;$('apu-name').value=apu.name;$('apu-unit').value=apu.unit;
+    $('apu-materials').value=apu.materials.map(m=>m.name+' | '+(m.qtyMilli/1000)+' | '+(m.unitCostCents/100)).join('\n');
+    $('apu-save').textContent='Guardar edición APU';
+  }),apuButton('Borrar',()=>{
+    if(!confirm('¿Eliminar el APU y todas sus aplicaciones en este proyecto?'))return;
+    commitValidated(st=>APU.deleteApu(st,apu.id));if(editingApuId===apu.id)clearApuForm();
+  },'danger'));
+  card.append(actions);library.append(card);
+ }
+ if(!Object.keys(state.apuLibrary||{}).length)library.append(apuDetail('No hay APU registrados todavía.'));
+ for(const item of Object.values(state.apuApplied||{})){
+  const apu=state.apuLibrary[item.apuId],card=document.createElement('div');card.className='apu-item';
+  const name=document.createElement('strong');name.textContent=apu.name;
+  const cost=APU.calculateUnitCostCents(apu);card.append(name,apuDetail((item.qtyMilli/1000)+' '+apu.unit+' · '+fmt(Math.round(cost*item.qtyMilli/1000)/100)));
+  const qty=document.createElement('input');qty.type='number';qty.min='0.001';qty.step='0.001';qty.max='1000';qty.value=(item.qtyMilli/1000).toString();qty.setAttribute('aria-label','Cantidad aplicada '+apu.name);
+  const actions=document.createElement('div');actions.className='apu-action';
+  actions.append(apuButton('Actualizar cant.',()=>{
+   try{const amount=milliQuantity(qty.value,'Cantidad aplicada');commitValidated(st=>APU.updateApplied(st,item.id,amount));}catch(e){$('error').textContent=e.message;}
+  }),apuButton('Quitar',()=>commitValidated(st=>APU.removeApplied(st,item.id)),'danger'));
+  card.append(qty,actions);applied.append(card);
+ }
+ if(!Object.keys(state.apuApplied||{}).length)applied.append(apuDetail('Ninguna partida personalizada aplicada.'));
+}
 function resolvePoint(next,x,y){const snap=SNAP.getSnappedPosition(x,y,next.nodes,next.walls,null,150);if(snap.snappedTo?.type==='node')return snap.snappedTo.id;if(snap.snappedTo?.type==='wall')throw Error('Punto sobre muro detectado: dividir el muro para crear una unión en T.');const id=nextId('n',next.nodes);next.nodes[id]={id,x:snap.x,y:snap.y};return id;}
 $('add-wall').onclick=()=>commit(next=>{const a=resolvePoint(next,integer('x1'),integer('y1')),b=resolvePoint(next,integer('x2'),integer('y2'));if(a===b)throw Error('El muro debe tener extremos diferentes');if(Object.values(next.walls).some(w=>(w.startNodeId===a&&w.endNodeId===b)||(w.startNodeId===b&&w.endNodeId===a)))throw Error('Este muro ya existe');const id=nextId('w',next.walls);next.walls[id]={id,startNodeId:a,endNodeId:b,height:2400,thickness:120,type:'tabique_interior'};});
 $('type').onchange=()=>{const d=CPQ.dimensions[$('type').value];$('width').value=d.width;$('height').value=d.height;$('sill').value=d.sillHeight;};
@@ -60,7 +131,9 @@ $('ai-process').onclick=()=>{try{
 }catch(e){$('error').textContent=e.message;}};
 $('iso-apply').onclick=()=>{
  try {
-  const next=ISO.buildPreset($('iso-model').value);
+  const next=APU.withDefaults(ISO.buildPreset($('iso-model').value));
+  next.apuLibrary=clone(state.apuLibrary||{});
+  next.apuApplied={};
   FP.validateProject(next);
   past.push(state);future=[];state={...next,revision:state.revision+1};selected=null;
   render();$('error').textContent='';
@@ -103,7 +176,11 @@ const catalogue={structure:{price:24500},insulation:{price:12500},floor:{price:2
 function calculateBudget(){let gross=0,holes=0,windows=0,doors=0,vanos=0;for(const wall of Object.values(state.walls)){const a=state.nodes[wall.startNodeId],b=state.nodes[wall.endNodeId];gross+=Math.hypot(b.x-a.x,b.y-a.y)*wall.height/1e6;}for(const o of Object.values(state.openings)){const area=o.width*o.height/1e6;holes+=area;if(o.type==='ventana')windows+=area;else if(o.type==='puerta')doors++;else if(o.type==='vano')vanos+=area;}
  const net=Math.max(0,gross-holes),floor=floorArea();
  const lines=[['Revestimiento de acero referencial',net.toFixed(2)+' m²',Math.round(net*1.02*catalogue.structure.price)],['Aislación interior referencial',net.toFixed(2)+' m²',Math.round(net*1.05*catalogue.insulation.price)],['Piso técnico referencial',floor.toFixed(2)+' m²',Math.round(floor*1.08*catalogue.floor.price)],['Ventanas',windows.toFixed(2)+' m²',Math.round(windows*catalogue.glass.price)],['Puertas',doors+' unidades',doors*catalogue.door.price],['Vanos libres',vanos.toFixed(2)+' m²',Math.round(vanos*catalogue.vano.price)]];
- const subtotal=lines.reduce((acc,line)=>acc+line[2],0),iva=Math.round(subtotal*.19);
+ const baseSubtotalCents=lines.reduce((acc,line)=>acc+line[2]*100,0),custom=APU.calculateApplied(state);
+ const subtotalCents=baseSubtotalCents+custom.subtotalCents;
+ if(!Number.isSafeInteger(subtotalCents))throw Error('Subtotal excede límite de centavos');
+ for(const item of custom.lines)lines.push([item.name,(item.qtyMilli/1000)+' '+item.unit,Math.round(item.subtotalCents/100)]);
+ const subtotal=Math.round(subtotalCents/100),iva=Math.round(subtotalCents*.19/100);
  return {gross,holes,net,floor,lines,subtotal,iva,total:subtotal+iva};
 }
 function highlight(){
@@ -112,7 +189,7 @@ function highlight(){
 }
 function render(){FP.validateProject(state);updateScene();updateNodeHandles();if(!validSelection())selected=null;highlight();inspect();if(state.metadata?.model!==lastCameraModel){lastCameraModel=state.metadata?.model;const dims=lastCameraModel?ISO.getDimensions(lastCameraModel):null;if(dims){const len=dims.length/1000,width=dims.width/1000;controls.target.set(len/2,1.2,width/2);camera.position.set(len/2+Math.max(6,len*.65),Math.max(6,len*.5),width/2+Math.max(7,len*.75));controls.update();}}const d=state.metadata?.model?ISO.getDimensions(state.metadata.model):null;$('model-label').textContent=d?d.label:'Planta libre';$('dimensions').textContent=d?d.length+' × '+d.width+' × '+d.height+' mm':'Variable';$('model-info').textContent=d?'Dimensiones exteriores nominales: '+d.length+' × '+d.width+' × '+d.height+' mm. La estructura 3D es ilustrativa.':'Planta sin tipología definida';$('revision').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros';$('undo').disabled=!past.length;$('redo').disabled=!future.length;
  const select=$('target'),prev=select.value;select.replaceChildren();for(const wall of Object.values(state.walls)){const option=document.createElement('option');option.value=wall.id;const a=state.nodes[wall.startNodeId],b=state.nodes[wall.endNodeId];option.textContent=wall.id.toUpperCase()+' · '+Math.round(Math.hypot(b.x-a.x,b.y-a.y))+' mm';select.append(option);}if(state.walls[prev])select.value=prev;
- const q=calculateBudget();$('gross').textContent=q.gross.toFixed(2)+' m²';$('holes').textContent=q.holes.toFixed(2)+' m²';$('net').textContent=q.net.toFixed(2)+' m²';$('floor').textContent=q.floor.toFixed(2)+' m²';$('total').textContent=fmt(q.total);$('subtotal').textContent=fmt(q.subtotal);$('iva').textContent=fmt(q.iva);$('items').replaceChildren();
+ renderApuUI();const q=calculateBudget();$('gross').textContent=q.gross.toFixed(2)+' m²';$('holes').textContent=q.holes.toFixed(2)+' m²';$('net').textContent=q.net.toFixed(2)+' m²';$('floor').textContent=q.floor.toFixed(2)+' m²';$('total').textContent=fmt(q.total);$('subtotal').textContent=fmt(q.subtotal);$('iva').textContent=fmt(q.iva);$('items').replaceChildren();
  for(const [name,quantity,cost] of q.lines){const row=document.createElement('div');row.className='line';const label=document.createElement('span');label.textContent=name+' ('+quantity+')';const value=document.createElement('strong');value.textContent=fmt(cost);row.append(label,value);$('items').append(row);}
  $('hud').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros · '+Object.keys(state.openings).length+' aberturas · arrastra para girar';
 }
