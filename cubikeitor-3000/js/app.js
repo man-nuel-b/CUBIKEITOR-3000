@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const calculateBtn = document.getElementById('calculate-btn');
     const exportCsvBtn = document.getElementById('export-csv-btn');
     const printBtn = document.getElementById('print-btn');
+    const visualBox = document.getElementById('visual-container-box');
 
     function calculateCubicacion() {
         const length = parseFloat(document.getElementById('room-length').value) || 0;
@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalArea = floorArea + wallsArea;
 
         // Cobertura estimada por unidad según tipo de material plano
-        let coveragePerUnit = 2.98; // Plancha estándar aprox 2.976 m² (2.44 x 1.22)
+        let coveragePerUnit = 2.98; // Plancha estándar (2.44 x 1.22m)
         if (materialType === 'ceramica') {
-            coveragePerUnit = 0.36; // 0.6 x 0.6 m
+            coveragePerUnit = 0.36;
         } else if (materialType === 'panel_comercial') {
             coveragePerUnit = 2.0;
         }
@@ -34,10 +34,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('res-total').textContent = '$' + totalPrice.toLocaleString('es-CL');
 
         document.getElementById('preview-title').textContent = `Recinto: ${length.toFixed(2)}m x ${width.toFixed(2)}m x ${height.toFixed(2)}m`;
-        document.getElementById('preview-subtitle').textContent = `Perímetro total: ${(2*(length+width)).toFixed(2)} m | Área envolvente neta: ${totalArea.toFixed(2)} m²`;
-    }
+        document.getElementById('preview-subtitle').textContent = `Área total envolvente: ${totalArea.toFixed(2)} m²`;
+        document.getElementById('box-dimensions-label').textContent = `${length.toFixed(1)}m × ${width.toFixed(1)}m`;
 
-    calculateBtn.addEventListener('click', calculateCubicacion);
+        // Renderizado visual a escala dentro del visor gráfico
+        const maxBoxWidth = 280;
+        const maxBoxHeight = 220;
+        const maxDim = Math.max(length, width, 1);
+
+        const renderWidth = Math.max(80, (length / maxDim) * maxBoxWidth);
+        const renderHeight = Math.max(60, (width / maxDim) * maxBoxHeight);
+
+        visualBox.style.width = `${renderWidth}px`;
+        visualBox.style.height = `${renderHeight}px`;
+    }
 
     document.querySelectorAll('input, select').forEach(element => {
         element.addEventListener('input', calculateCubicacion);
@@ -45,14 +55,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     exportCsvBtn.addEventListener('click', () => {
         const csvContent = "data:text/csv;charset=utf-8,Parametro,Valor\n" +
-            "Superficie Total," + document.getElementById('res-area').textContent + "\n" +
-            "Unidades Estimadas," + document.getElementById('res-units').textContent + "\n" +
-            "Costo Total," + document.getElementById('res-total').textContent;
+            "Superficie Total," + document.getElementById("res-area").textContent + "\n" +
+            "Unidades Estimadas," + document.getElementById("res-units").textContent + "\n" +
+            "Costo Total," + document.getElementById("res-total").textContent;
 
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "reporte_cubicacion_3d.csv");
+        link.setAttribute("download", "BOM_Cubikeitor3000.csv");
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
