@@ -30,6 +30,7 @@ jobs:
           node --check src/cpq-parser.js
           node --check src/iso-presets.js
           node --check src/iso-structure.js
+          node --check src/inspector-core.js
           node --check src/vector-wall-mesh.js
           node --check src/wall-cutouts.js
           node --check src/vector-opening-mesh.js
@@ -46,6 +47,8 @@ jobs:
           test -f dist/src/cpq-parser.js
           test -f dist/cubikeitor-cpq-express.html
           test -f dist/cubikeitor-iso.html
+          test -f dist/cubikeitor-cpq-pro.html
+          test -f dist/src/inspector-core.js
           test -f dist/src/iso-presets.js
           test -f dist/src/iso-structure.js
           test -f dist/src/wall-cutouts.js
