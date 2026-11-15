@@ -27,3 +27,8 @@ jobs:
           node --check src/cost-worker.js
       - name: Ejecutar pruebas
         run: node --test tests/*.test.cjs
+      - name: Validar paquete Cloudflare Pages
+        run: |
+          sh scripts/build-pages.sh
+          test -f dist/index.html
+          test -f dist/src/core.js
