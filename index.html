@@ -3,579 +3,349 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CUBIKEITOR 3000 PRO+ · CPQ & APU Modular Enterprise</title>
-  <style>
-    :root {
-      --bg: #0b132b;
-      --panel: #1c2541;
-      --border: #3a506b;
-      --text: #ffffff;
-      --muted: #8d99ae;
-      --accent: #ffd166;
-      --primary: #4cc9f0;
-      --success: #06d6a0;
-      --danger: #ef476f;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    
-    header {
-      padding: 10px 20px; background: #050b1a; border-bottom: 1px solid var(--border);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    header h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.5px; }
-    header h1 span { color: var(--accent); }
-    .badge { background: var(--panel); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; color: var(--muted); }
-
-    main { display: grid; grid-template-columns: 350px 1fr 370px; gap: 12px; padding: 12px; flex: 1; overflow: hidden; }
-    
-    .card {
-      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
-      padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto;
-    }
-    .card h2 { font-size: 0.88rem; color: #ffffff; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
-
-    .tabs { display: flex; gap: 4px; margin-bottom: 2px; }
-    .tab-btn { flex: 1; padding: 7px 4px; background: #0b132b; border: 1px solid var(--border); color: var(--muted); font-size: 0.73rem; border-radius: 6px; cursor: pointer; text-align: center; font-weight: 600; transition: 0.2s; }
-    .tab-btn.active { background: var(--primary); border-color: var(--primary); color: #0b132b; font-weight: 700; }
-
-    .tab-content { display: none; flex-direction: column; gap: 8px; }
-    .tab-content.active { display: flex; }
-
-    label { display: block; font-size: 0.73rem; color: var(--muted); margin-bottom: 2px; }
-    select, input, textarea {
-      width: 100%; padding: 7px 9px; background: #0b132b; border: 1px solid var(--border);
-      border-radius: 6px; color: var(--text); font-size: 0.82rem;
-    }
-    textarea { height: 50px; resize: none; }
-    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-
-    button {
-      padding: 8px 10px; border: none; border-radius: 6px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.15s;
-    }
-    .btn-primary { background: var(--primary); color: #0b132b; width: 100%; font-weight: 700; }
-    .btn-accent { background: var(--accent); color: #0b132b; width: 100%; font-weight: 700; }
-    .btn-success { background: var(--success); color: #0b132b; width: 100%; font-weight: 700; }
-    .btn-secondary { background: #3a506b; color: #ffffff; }
-    .btn-danger { background: var(--danger); color: #fff; }
-
-    #viewer-container { position: relative; padding: 0; overflow: hidden; background: #050b1a; border-radius: 12px; cursor: crosshair; }
-    #canvas3d { width: 100%; height: 100%; display: block; }
-    
-    .view-toolbar {
-      position: absolute; top: 12px; left: 12px; display: flex; gap: 4px; background: rgba(28, 37, 65, 0.95);
-      padding: 5px; border-radius: 8px; border: 1px solid var(--border); z-index: 10; backdrop-filter: blur(4px);
-    }
-    .view-toolbar button { background: transparent; color: var(--muted); padding: 5px 8px; font-size: 0.7rem; border-radius: 6px; }
-    .view-toolbar button:hover, .view-toolbar button.active { background: var(--primary); color: #0b132b; font-weight: 700; }
-
-    .selection-box { background: rgba(76, 201, 240, 0.1); border: 1px dashed var(--primary); padding: 10px; border-radius: 8px; margin-bottom: 4px; }
-    
-    .total-price { font-size: 1.7rem; font-weight: 800; color: var(--accent); margin: 2px 0; }
-    .metric-row, .budget-row {
-      display: flex; justify-content: space-between; padding: 5px 0;
-      border-bottom: 1px solid rgba(58, 80, 107, 0.5); font-size: 0.8rem;
-    }
-    .budget-row span { color: var(--muted); max-width: 65%; }
-  </style>
+  <title>CUBIKEITOR 3000 PRO+ · Software Avanzado de Construcción Modular & BIM</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #090e17;
+      --panel: #131c2e;
+      --panel-hover: #1b2842;
+      --border: #273b59;
+      --text: #f0f4f8;
+      --muted: #94a3b8;
+      --accent: #f59e0b;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --purple: #8b5cf6;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+    header {
+      background: #04070d; border-bottom: 1px solid var(--border);
+      padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5); z-index: 10;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .logo-badge { background: linear-gradient(135deg, var(--primary), var(--purple)); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; color: white; box-shadow: 0 0 15px rgba(59,130,246,0.4); }
+    header h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.5px; }
+    header h1 span { color: var(--accent); }
+    .header-actions { display: flex; gap: 10px; align-items: center; }
+    
+    .btn {
+      background: var(--primary); color: white; border: none; padding: 7px 14px; border-radius: 6px;
+      font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px;
+      transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .btn-secondary { background: var(--panel); border: 1px solid var(--border); color: var(--text); }
+    .btn-success { background: var(--success); }
+    .btn-accent { background: var(--accent); color: #000; font-weight: 700; }
+
+    main { display: grid; grid-template-columns: 360px 1fr 390px; gap: 12px; padding: 12px; flex: 1; overflow: hidden; }
+    
+    .sidebar { display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-right: 4px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; display: flex; flex-direction: column; gap: 10px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .card h2 { font-size: 0.95rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      padding: 7px 10px; border-radius: 6px; font-size: 0.85rem; outline: none; transition: border 0.2s;
+    }
+    input:focus, select:focus { border-color: var(--primary); }
+
+    .viewport-container {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+      position: relative; overflow: hidden; display: flex; flex-direction: column;
+    }
+    #webgl-container { flex: 1; width: 100%; height: 100%; }
+    
+    .viewport-overlay {
+      position: absolute; top: 12px; left: 12px; display: flex; gap: 8px; pointer-events: none;
+    }
+    .pill { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; pointer-events: auto; display: flex; gap: 6px; align-items: center; }
+    .pill b { color: var(--primary); }
+
+    .view-gizmo {
+      position: absolute; bottom: 12px; left: 12px; display: flex; gap: 6px; background: rgba(19, 28, 46, 0.9);
+      padding: 6px; border-radius: 8px; border: 1px solid var(--border);
+    }
+    .view-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
+    .view-btn:hover { background: var(--primary); }
+
+    .module-item {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px;
+      display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;
+    }
+    .module-item button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 1rem; }
+
+    .budget-summary { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; }
+    .budget-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.08); }
+    .budget-total { font-size: 1.15rem; font-weight: 800; color: var(--success); display: flex; justify-content: space-between; margin-top: 6px; padding-top: 8px; border-top: 2px solid var(--border); }
+
+    .tabs { display: flex; gap: 4px; background: var(--bg); padding: 3px; border-radius: 6px; border: 1px solid var(--border); }
+    .tab { flex: 1; text-align: center; padding: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; color: var(--muted); }
+    .tab.active { background: var(--primary); color: white; }
+
+    .tab-content { display: none; flex-direction: column; gap: 10px; }
+    .tab-content.active { display: flex; }
+
+    .table-spec { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 4px; }
+    .table-spec th, .table-spec td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; }
+    .table-spec th { background: var(--bg); color: var(--muted); }
+  </style>
 </head>
 <body>
 
-<header>
-  <div><h1>CUBIKEITOR <span>3000 PRO+</span> · Ecosistema CPQ Modular</h1></div>
-  <div class="badge">Chile · Industrial & Comercial</div>
-</header>
-
-<main>
-  <!-- PANEL 1: CONFIGURADOR Y PESTAÑAS -->
-  <section class="card">
-    <div class="tabs">
-      <div class="tab-btn active" onclick="switchTab(0)">1. Solución</div>
-      <div class="tab-btn" onclick="switchTab(1)">2. Elementos</div>
-      <div class="tab-btn" onclick="switchTab(2)">3. APU & Costos</div>
-    </div>
-
-    <!-- Pestaña 1: Solución y Contenedor -->
-    <div class="tab-content active" id="tab-0">
-      <h2>Tipología de Proyecto</h2>
-      <div class="form-group">
-        <label>Uso principal</label>
-        <select id="sel-uso" onchange="updateProject()">
-          <option value="oficina">Oficina Habilitada</option>
-          <option value="oficina_bano">Oficina con Medio Baño</option>
-          <option value="bodega">Bodega / Taller</option>
-          <option value="habitable">Studio Habitable (Baño + Cocina)</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Modelo ISO Base</label>
-        <select id="sel-modelo" onchange="updateProject()">
-          <option value="20ft">Contenedor 20 Pies Standard (6.06m)</option>
-          <option value="20ftHC">Contenedor 20 Pies High Cube (2.89m)</option>
-          <option value="40ftHC" selected>Contenedor 40 Pies High Cube (12.19m)</option>
-        </select>
-      </div>
-      <div class="row-2">
-        <div class="form-group">
-          <label>Terminación Muros</label>
-          <select id="sel-muros" onchange="updateProject()">
-            <option value="confort">Confort (Volcanita + Lana)</option>
-            <option value="esencial">Esencial (OSB + EPS)</option>
-            <option value="sanitario">Sanitario (Panel PVC)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Terminación Piso</label>
-          <select id="sel-piso" onchange="updateProject()">
-            <option value="spc">Vinílico SPC Click</option>
-            <option value="sanitario">Vinílico Antideslizante</option>
-            <option value="porcelanato">Porcelanato R10</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Color Exterior Contenedor</label>
-        <select id="sel-color" onchange="updateProject()">
-          <option value="0x1d4ed8" selected>Azul Corporativo Brillante</option>
-          <option value="0x334155">Gris Grafito Claro</option>
-          <option value="0x059669">Verde Minero Intenso</option>
-          <option value="0xdc2626">Rojo Industrial Vivo</option>
-          <option value="0xf8fafc">Blanco Refractario</option>
-        </select>
+  <header>
+    <div class="brand">
+      <div class="logo-badge">C3</div>
+      <div>
+        <h1>CUBIKEITOR 3000 <span>PRO+</span></h1>
+        <div style="font-size: 0.72rem; color: var(--muted);">Plataforma BIM & CPQ Profesional para Construcción Modular y Prefabricados</div>
       </div>
     </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="exportJSON()">📥 Exportar Proyecto JSON</button>
+      <button class="btn btn-secondary" onclick="exportXLSX()">📊 Exportar APU & Presupuesto (XLSX)</button>
+      <button class="btn btn-accent" onclick="exportPDF()">📑 Generar Cotización & Dossier BIM (PDF)</button>
+    </div>
+  </header>
 
-    <!-- Pestaña 2: Elementos y Catálogo 3D / Inspector -->
-    <div class="tab-content" id="tab-1">
-      <h2>Inspector de Elementos 3D</h2>
-      <div id="inspector-container">
-        <div class="selection-box" id="selection-info">
-          <label style="color: var(--primary); font-weight: bold;">Ningún objeto seleccionado</label>
-          <span style="font-size: 0.72rem; color: var(--muted);">Haz clic en cualquier muro, puerta o ventana en el visor 3D para editar sus medidas o eliminarlo.</span>
+  <main>
+    <!-- COLUMNA 1: GESTIÓN DE MÓDULOS Y CONFIGURACIÓN BIM -->
+    <div class="sidebar">
+      <div class="card">
+        <h2>🏗️ Configuración General del Proyecto</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Proyecto / Cliente</label>
+            <input type="text" id="proj-name" value="Edificio Modular Oficinas SpA" oninput="updateProject()" />
+          </div>
+          <div class="form-group">
+            <label>Moneda / Índice</label>
+            <select id="proj-currency" onchange="updateProject()">
+              <option value="CLP">CLP ($)</option>
+              <option value="UF">UF (Unidad de Fomento)</option>
+              <option value="USD">USD ($)</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Valor UF / USD (CLP)</label>
+            <input type="number" id="proj-rate" value="38000" oninput="updateProject()" />
+          </div>
+          <div class="form-group">
+            <label>Margen Comercial (%)</label>
+            <input type="number" id="proj-margin" value="25" oninput="updateProject()" />
+          </div>
         </div>
       </div>
 
-      <div style="border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px;">
-        <h2>Asistente Flash NLP</h2>
-        <textarea id="ai-prompt" placeholder="Ej: Añadir 3 ventanas y 2 puertas...">Contenedor con 2 ventanas y una puerta</textarea>
-        <button class="btn-accent" onclick="processPrompt()" style="margin-top: 6px;">🪄 Interpretar Requerimiento</button>
+      <div class="card">
+        <h2>🧱 Agregar Módulo BIM</h2>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de Módulo</label>
+            <select id="mod-type">
+              <option value="office">Módulo Oficina / Estándar (6x3m)</option>
+              <option value="sanitary">Módulo Baños / Sanitario (3x2.4m)</option>
+              <option value="living">Módulo Habitacional / Hotel (6x3m)</option>
+              <option value="custom">Módulo Personalizado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Calidad Terminaciones</label>
+            <select id="mod-spec">
+              <option value="economica">Económica / Faena</option>
+              <option value="estandar" selected>Estándar / Comercial</option>
+              <option value="premium">Premium / Arquitectónica</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Largo (m)</label>
+            <input type="number" id="mod-largo" value="6.0" step="0.5" />
+          </div>
+          <div class="form-group">
+            <label>Ancho (m)</label>
+            <input type="number" id="mod-ancho" value="3.0" step="0.5" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Alto (m)</label>
+            <input type="number" id="mod-alto" value="2.6" step="0.1" />
+          </div>
+          <div class="form-group">
+            <label>Aislación Térmica (mm)</label>
+            <select id="mod-aislacion">
+              <option value="50">Poliestireno 50mm</option>
+              <option value="80" selected>Poliuretano 80mm (SIP)</option>
+              <option value="100">Lana de Roca 100mm</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn" onclick="addModule()">➕ Añadir Módulo a la Grilla 3D</button>
+      </div>
+
+      <div class="card" style="flex: 1;">
+        <h2>📋 Módulos en el Proyecto (<span id="mod-count">0</span>)</h2>
+        <div id="module-list" style="display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: 220px;">
+          <!-- Lista dinámica de módulos -->
+        </div>
       </div>
     </div>
 
-    <!-- Pestaña 3: APU Dinámicos y Finanzas -->
-    <div class="tab-content" id="tab-2">
-      <h2>Creador de APU Personalizados</h2>
-      <div class="form-group"><label>Nombre de Partida / Servicio</label><input type="text" id="apu-name" value="Corte estructural y refuerzo"></div>
-      <div class="row-2">
-        <div class="form-group"><label>Unidad</label><select id="apu-unit"><option value="global">Global (gl)</option><option value="ml">Metro Lineal (ml)</option><option value="m²">Metro Cuadrado (m²)</option></select></div>
-        <div class="form-group"><label>Costo Neto (CLP)</label><input type="number" id="apu-price" value="295000"></div>
+    <!-- COLUMNA 2: VISOR 3D BIM & PLANOS -->
+    <div class="viewport-container">
+      <div class="viewport-overlay">
+        <div class="pill">Área Útil: <b id="lbl-piso">0.0 m²</b></div>
+        <div class="pill">Superficie Muros: <b id="lbl-muros">0.0 m²</b></div>
+        <div class="pill">Peso Estructural: <b id="lbl-peso">0 Ton</b></div>
+        <div class="pill">Índice Térmico U: <b id="lbl-u">0.32 W/m²K</b></div>
       </div>
-      <button class="btn-primary" onclick="addCustomApu()">+ Registrar APU al Proyecto</button>
-      
-      <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;">
-        <label>Margen Comercial (%)</label><input type="number" id="val-margen" value="25" onchange="updateProject()">
-        <label style="margin-top:4px;">Transporte / Flete (CLP)</label><input type="number" id="val-flete" value="150000" onchange="updateProject()">
+
+      <div id="webgl-container"></div>
+
+      <div class="view-gizmo">
+        <button class="view-btn" onclick="resetCamera()">Resetear Vista</button>
+        <button class="view-btn" onclick="toggleWireframe()">Modo Malla</button>
+        <button class="view-btn" onclick="toggleShadows()">Sombras</button>
       </div>
     </div>
-  </section>
 
-  <!-- PANEL 2: VISOR 3D CON RAYCASTING -->
-  <section class="card" id="viewer-container">
-    <div class="view-toolbar">
-      <button onclick="setCameraView('exterior')" class="active" id="btn-ext">Exterior</button>
-      <button onclick="setCameraView('interior')" id="btn-int">Interior</button>
-      <button onclick="setCameraView('planta')" id="btn-plan">Planta</button>
-      <button onclick="toggleDayNight()" id="btn-light">☀️ Día</button>
+    <!-- COLUMNA 3: PRESUPUESTO CPQ, APU & ESPECIFICACIONES -->
+    <div class="sidebar">
+      <div class="card">
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('presupuesto', event)">Presupuesto CPQ</div>
+          <div class="tab" onclick="switchTab('apu', event)">Análisis Precios (APU)</div>
+          <div class="tab" onclick="switchTab('normativa', event)">Normativa & Térmico</div>
+        </div>
+
+        <!-- TAB 1: PRESUPUESTO -->
+        <div id="tab-presupuesto" class="tab-content active">
+          <div class="budget-summary" id="ui-items">
+            <!-- Items dinámicos -->
+          </div>
+          <div class="form-group" style="margin-top: 8px;">
+            <label>Costo Logística / Flete (CLP)</label>
+            <input type="number" id="proj-flete" value="450000" step="50000" oninput="updateProject()" />
+          </div>
+          <div class="budget-total">
+            <span>Total Final (IVA inc.)</span>
+            <span id="lbl-total">$0</span>
+          </div>
+        </div>
+
+        <!-- TAB 2: APU -->
+        <div id="tab-apu" class="tab-content">
+          <div style="font-size: 0.8rem; color: var(--muted);">Desglose por Partidas del Presupuesto Oficial (Estándar CCHM / CORFO):</div>
+          <table class="table-spec">
+            <thead>
+              <tr><th>Partida</th><th>Incidencia</th><th>Costo Neto</th></tr>
+            </thead>
+            <tbody id="apu-table-body">
+              <!-- Llenado dinámico -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- TAB 3: NORMATIVA -->
+        <div id="tab-normativa" class="tab-content">
+          <div style="font-size: 0.8rem; line-height: 1.4; color: var(--muted);">
+            <b>Cumplimiento Normativo Chileno:</b>
+            <ul style="margin-left: 15px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+              <li><b>NCh433 Of.96 Mod.2009:</b> Diseño Sísmico para estructuras modulares de acero.</li>
+              <li><b>OGUC Art. 4.1.10:</b> Aislación térmica (Zona Térmica 3 - Concepción/Temuco cumplida).</li>
+              <li><b>NCh349 / NCh1198:</b> Madera estructural y uniones mecánicas certificadas.</li>
+              <li><b>NCH 2243:</b> Instalaciones sanitarias y eléctricas normadas SEC.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="flex: 1;">
+        <h2>📝 Especificaciones Técnicas Avanzadas</h2>
+        <div style="font-size: 0.8rem; color: var(--muted); display: flex; flex-direction: column; gap: 6px;">
+          <div>• <b>Chasis:</b> Perfil tubular ASTM A36 estructural con imprimación epóxica anticorrosiva.</div>
+          <div>• <b>Panelería:</b> SIP (Structural Insulated Panel) con núcleo de poliuretano inyectado de alta densidad.</div>
+          <div>• <b>Pisos:</b> Terciado estructural 18mm sobre vigas secundarias + vinílico alto tráfico comercial.</div>
+          <div>• <b>Terminaciones:</b> Cielos americanos, iluminación LED embutida y canalización eléctrica en bandeja EMT.</div>
+        </div>
+      </div>
     </div>
-    <canvas id="canvas3d"></canvas>
-  </section>
-
-  <!-- PANEL 3: RESUMEN COMERCIAL Y PROPUESTA -->
-  <section class="card">
-    <h2>Cotización Exprés</h2>
-    <div>
-      <div style="font-size: 0.72rem; color: var(--muted);">Total con IVA (19%)[cite: 7]</div>
-      <div class="total-price" id="lbl-total">$0</div>
-    </div>
-
-    <div style="margin-top: 4px;">
-      <div class="metric-row"><span>Área Muros Netos</span><strong id="lbl-muros">0 m²</strong></div>
-      <div class="metric-row"><span>Área Piso Útil</span><strong id="lbl-piso">0 m²</strong></div>
-    </div>
-
-    <h2>Desglose de Partidas (BOM)</h2>
-    <div id="ui-items" style="flex: 1; overflow-y: auto; max-height: 160px;"></div>
-
-    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 6px;">
-      <button class="btn-success" onclick="window.print()">🖨️ Imprimir Propuesta / PDF</button>
-      <button class="btn-secondary" onclick="shareWhatsApp()">💬 Compartir por WhatsApp</button>
-    </div>
-  </section>
-</main>
+  </main>
 
 <script>
-(function () {
-  'use strict';
-  const SCALE = 0.001;
+  // --- MOTOR 3D & ESTADO DEL PROYECTO ---
+  let scene, camera, renderer, controls;
+  let modules = [
+    { id: 1, type: 'office', spec: 'estandar', largo: 6.0, ancho: 3.0, alto: 2.6, aislacion: 80, x: 0, z: 0 },
+    { id: 2, type: 'sanitary', spec: 'estandar', largo: 3.0, ancho: 2.4, alto: 2.6, aislacion: 80, x: 6.5, z: 0 }
+  ];
+  let meshGroup = new THREE.Group();
+  let wireframeMode = false;
+  let shadowsEnabled = true;
 
-  let state = {
-    length: 12192, width: 2438, height: 2896, color: 0x1d4ed8,
-    margen: 25, flete: 150000,
-    nodes: { n1: { id: 'n1', x: 0, y: 0 }, n2: { id: 'n2', x: 12192, y: 0 }, n3: { id: 'n3', x: 12192, y: 2438 }, n4: { id: 'n4', x: 0, y: 2438 } },
-    walls: {
-      w1: { id: 'w1', startNodeId: 'n1', endNodeId: 'n2', height: 2896, thickness: 150 },
-      w2: { id: 'w2', startNodeId: 'n2', endNodeId: 'n3', height: 2896, thickness: 150 },
-      w3: { id: 'w3', startNodeId: 'n3', endNodeId: 'n4', height: 2896, thickness: 150 },
-      w4: { id: 'w4', startNodeId: 'n4', endNodeId: 'n1', height: 2896, thickness: 150 }
-    },
-    openings: {
-      op1: { id: 'op1', wallId: 'w1', type: 'puerta', width: 900, height: 2100, offsetFromStart: 2000, sillHeight: 0 },
-      op2: { id: 'op2', wallId: 'w3', type: 'ventana', width: 1200, height: 1000, offsetFromStart: 4000, sillHeight: 900 }
-    },
-    customApus: [{ name: 'Corte estructural y refuerzo', unit: 'global', qty: 1, price: 295000 }]
-  };
+  const container = document.getElementById('webgl-container');
 
-  let selectedObject = null;
+  function init3D() {
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x090e17);
 
-  window.switchTab = function(idx) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-    document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
-  };
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(12, 10, 16);
 
-  window.updateProject = function() {
-    const mod = document.getElementById('sel-modelo').value;
-    let l = 12192, h = 2896;
-    if (mod === '20ft') { l = 6058; h = 2591; }
-    else if (mod === '20ftHC') { l = 6058; h = 2896; }
-    else if (mod === '40ftHC') { l = 12192; h = 2896; }
+    renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.shadowMap.enabled = true;
+    container.appendChild(renderer.domElement);
 
-    state.length = l; state.height = h;
-    state.nodes = { n1: { id: 'n1', x: 0, y: 0 }, n2: { id: 'n2', x: l, y: 0 }, n3: { id: 'n3', x: l, y: 2438 }, n4: { id: 'n4', x: 0, y: 2438 } };
-    for(let wId of Object.keys(state.walls)) { state.walls[wId].height = h; }
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.target.set(3, 1, 0);
 
-    state.color = Number(document.getElementById('sel-color').value);
-    state.margen = Number(document.getElementById('val-margen').value);
-    state.flete = Number(document.getElementById('val-flete').value);
+    // Iluminación profesional
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    scene.add(ambientLight);
 
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    dirLight.position.set(20, 30, 20);
+    dirLight.castShadow = true;
+    scene.add(dirLight);
+
+    const gridHelper = new THREE.GridHelper(40, 40, 0x3b82f6, 0x1f293d);
+    gridHelper.position.y = -0.01;
+    scene.add(gridHelper);
+
+    scene.add(meshGroup);
+
+    window.addEventListener('resize', onWindowResize);
     rebuildScene();
-    calculateBudget();
-  };
-
-  window.addCustomApu = function() {
-    const name = document.getElementById('apu-name').value;
-    const unit = document.getElementById('apu-unit').value;
-    const price = Number(document.getElementById('apu-price').value);
-    if (!name || isNaN(price)) return;
-    state.customApus.push({ name, unit, qty: 1, price });
-    calculateBudget();
-    alert('APU agregado exitosamente.');
-  };
-
-  window.processPrompt = function() {
-    const text = document.getElementById('ai-prompt').value.toLowerCase();
-    const newOpenings = {};
-    let opCounter = 1;
-    const terms = ['ventana', 'puerta', 'vano'];
-    let parsedList = [];
-
-    terms.forEach(term => {
-      const regexNum = new RegExp(`(un[oa]?|\\d+)\\s+(?:[a-záéíóú]+\\s+)*?(${term}s?)`, 'gi');
-      let match;
-      while ((match = regexNum.exec(text)) !== null) {
-        let rawQty = match[1];
-        let qty = rawQty === 'dos' ? 2 : (rawQty === 'tres' ? 3 : (rawQty === 'una' || rawQty === 'un' ? 1 : parseInt(rawQty, 10)));
-        if (isNaN(qty)) qty = 1;
-        for (let i = 0; i < qty; i++) {
-          parsedList.push({ type: term.startsWith('vano') ? 'vano' : (term.startsWith('puerta') ? 'puerta' : 'ventana') });
-        }
-      }
-    });
-
-    if (parsedList.length === 0) parsedList.push({ type: 'puerta' });
-
-    const wallIds = Object.keys(state.walls);
-    let offsetDist = 1200;
-    parsedList.forEach((item, idx) => {
-      const targetWallId = wallIds[idx % wallIds.length];
-      let width = 1200, height = 1050, sill = 900;
-      if (item.type === 'puerta') { width = 900; height = 2100; sill = 0; }
-      if (item.type === 'vano') { width = 1000; height = 2000; sill = 0; }
-
-      const opId = 'op' + opCounter++;
-      newOpenings[opId] = { id: opId, wallId: targetWallId, type: item.type, width, height, offsetFromStart: offsetDist, sillHeight: sill };
-      offsetDist += width + 800;
-    });
-
-    state.openings = newOpenings;
-    selectedObject = null;
-    rebuildScene();
-    calculateBudget();
-  };
-
-  window.shareWhatsApp = function() {
-    const total = document.getElementById('lbl-total').textContent;
-    const text = encodeURIComponent(`Hola, me interesa una cotización de contenedor modular en CUBIKEITOR 3000 PRO+ por un total de ${total}. ¿Podemos coordinar?`);
-    window.open(`https://api.whatsapp.com/send?phone=&text=${text}`, '_blank');
-  };
-
-  // --- THREE.JS VISOR & RAYCASTING ---
-  const container = document.getElementById('viewer-container');
-  const canvas = document.getElementById('canvas3d');
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0b132b);
-
-  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 300);
-  camera.position.set(12, 10, 16);
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-  const controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.target.set(6, 1.4, 1.2);
-  controls.update();
-
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
-  scene.add(ambientLight);
-  const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-  dirLight.position.set(20, 30, 20);
-  scene.add(dirLight);
-  scene.add(new THREE.GridHelper(40, 40, 0x3a506b, 0x1c2541));
-
-  const wallMeshes = new Map();
-  const openingMeshes = new Map();
-
-  window.setCameraView = function(view) {
-    document.querySelectorAll('.view-toolbar button').forEach(b => b.classList.remove('active'));
-    if(view === 'exterior') { camera.position.set(12, 10, 16); controls.target.set(6, 1.4, 1.2); document.getElementById('btn-ext').classList.add('active'); }
-    else if(view === 'interior') { camera.position.set(6, 1.4, 1.2); controls.target.set(6, 1.4, 6); document.getElementById('btn-int').classList.add('active'); }
-    else if(view === 'planta') { camera.position.set(6, 18, 1.2); controls.target.set(6, 0, 1.2); document.getElementById('btn-plan').classList.add('active'); }
-    controls.update();
-  };
-
-  let isDay = true;
-  window.toggleDayNight = function() {
-    isDay = !isDay;
-    scene.background = new THREE.Color(isDay ? 0x0b132b : 0x030712);
-    ambientLight.intensity = isDay ? 0.8 : 0.3;
-    document.getElementById('btn-light').textContent = isDay ? '☀️ Día' : '🌙 Noche';
-  };
-
-  function rebuildScene() {
-    for (const [id, mesh] of wallMeshes) { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
-    for (const [id, mesh] of openingMeshes) { scene.remove(mesh); mesh.geometry.dispose(); mesh.material.dispose(); }
-    wallMeshes.clear(); openingMeshes.clear();
-
-    for (const wall of Object.values(state.walls)) {
-      const nStart = state.nodes[wall.startNodeId];
-      const nEnd = state.nodes[wall.endNodeId];
-      const dx = nEnd.x - nStart.x, dz = nEnd.y - nStart.y;
-      const length = Math.hypot(dx, dz) * SCALE;
-      const height = wall.height * SCALE;
-      const thickness = wall.thickness * SCALE;
-
-      const geom = new THREE.BoxGeometry(thickness, height, length);
-      geom.translate(0, height / 2, length / 2);
-      
-      const isSelected = selectedObject && selectedObject.type === 'wall' && selectedObject.id === wall.id;
-      const color = isSelected ? 0x4cc9f0 : state.color;
-
-      const mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ color, roughness: 0.4, metalness: 0.3 }));
-      mesh.position.set(nStart.x * SCALE, 0, nStart.y * SCALE);
-      mesh.rotation.y = Math.atan2(dx, dz);
-      mesh.userData = { type: 'wall', id: wall.id };
-      scene.add(mesh);
-      wallMeshes.set(wall.id, mesh);
-    }
-
-    for (const op of Object.values(state.openings)) {
-      const wall = state.walls[op.wallId];
-      if (!wall) continue;
-      const nStart = state.nodes[wall.startNodeId];
-      const nEnd = state.nodes[wall.endNodeId];
-      const dx = nEnd.x - nStart.x, dz = nEnd.y - nStart.y;
-      const wallLen = Math.hypot(dx, dz);
-      const t = (op.offsetFromStart + op.width / 2) / wallLen;
-
-      const isSelected = selectedObject && selectedObject.type === 'opening' && selectedObject.id === op.id;
-      let color = isSelected ? 0x4cc9f0 : (op.type === 'ventana' ? 0x4cc9f0 : (op.type === 'puerta' ? 0xffd166 : 0x8d99ae));
-
-      const geom = new THREE.BoxGeometry(wall.thickness * SCALE * 1.25, op.height * SCALE, op.width * SCALE);
-      const mesh = new THREE.Mesh(geom, new THREE.MeshStandardMaterial({ color, transparent: op.type !== 'puerta', opacity: op.type === 'puerta' ? 1.0 : 0.85 }));
-      mesh.position.set((nStart.x + dx * t) * SCALE, (op.sillHeight + op.height / 2) * SCALE, (nStart.y + dz * t) * SCALE);
-      mesh.rotation.y = Math.atan2(dx, dz);
-      mesh.userData = { type: 'opening', id: op.id };
-      scene.add(mesh);
-      openingMeshes.set(op.id, mesh);
-    }
-    updateInspectorUI();
+    animate();
   }
 
-  // Raycasting para selección por clics
-  const raycaster = new THREE.Raycaster();
-  const mouse = new THREE.Vector2();
-
-  canvas.addEventListener('click', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = ((event.clientX - rect.left) / canvas.clientWidth) * 2 - 1;
-    mouse.y = -((event.clientY - rect.top) / canvas.clientHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersectable = [...wallMeshes.values(), ...openingMeshes.values()];
-    const intersects = raycaster.intersectObjects(intersectable, false);
-
-    if (intersects.length > 0) {
-      selectedObject = intersects[0].object.userData;
-    } else {
-      selectedObject = null;
-    }
-    rebuildScene();
-  });
-
-  function updateInspectorUI() {
-    const box = document.getElementById('selection-info');
-    if (!selectedObject) {
-      box.innerHTML = `
-        <label style="color: var(--primary); font-weight: bold;">Ningún objeto seleccionado</label>
-        <span style="font-size: 0.72rem; color: var(--muted);">Haz clic en cualquier muro o abertura en el visor 3D para editar sus medidas o eliminarlo.</span>
-      `;
-      return;
-    }
-
-    if (selectedObject.type === 'wall') {
-      const wall = state.walls[selectedObject.id];
-      if (!wall) return;
-      box.innerHTML = `
-        <label style="color: var(--accent); font-weight: bold;">Muro: ${wall.id.toUpperCase()}</label>
-        <div class="row-2" style="margin-top: 4px;">
-          <div class="form-group"><label>Altura (mm)</label><input type="number" id="edit-wall-h" value="${wall.height}" step="50"></div>
-          <div class="form-group"><label>Espesor (mm)</label><input type="number" id="edit-wall-t" value="${wall.thickness}" step="10"></div>
-        </div>
-        <button class="btn-primary" onclick="applyWallEdit('${wall.id}')" style="margin-top:4px;">💾 Guardar Cambios</button>
-      `;
-    } else if (selectedObject.type === 'opening') {
-      const op = state.openings[selectedObject.id];
-      if (!op) return;
-      box.innerHTML = `
-        <label style="color: var(--accent); font-weight: bold;">${op.type.toUpperCase()}: ${op.id.toUpperCase()}</label>
-        <div class="row-2" style="margin-top: 4px;">
-          <div class="form-group"><label>Ancho (mm)</label><input type="number" id="edit-op-w" value="${op.width}" step="50"></div>
-          <div class="form-group"><label>Alto (mm)</label><input type="number" id="edit-op-h" value="${op.height}" step="50"></div>
-        </div>
-        <div class="row-2" style="margin-top: 4px;">
-          <div class="form-group"><label>Offset (mm)</label><input type="number" id="edit-op-off" value="${op.offsetFromStart}" step="50"></div>
-          <div class="form-group"><label>Antepecho (mm)</label><input type="number" id="edit-op-sill" value="${op.sillHeight}" step="50"></div>
-        </div>
-        <div class="row-2" style="margin-top: 4px;">
-          <button class="btn-primary" onclick="applyOpeningEdit('${op.id}')">💾 Guardar</button>
-          <button class="btn-danger" onclick="deleteOpening('${op.id}')">🗑️ Eliminar</button>
-        </div>
-      `;
-    }
-  }
-
-  window.applyWallEdit = function(wallId) {
-    const wall = state.walls[wallId];
-    if (!wall) return;
-    wall.height = Number(document.getElementById('edit-wall-h').value);
-    wall.thickness = Number(document.getElementById('edit-wall-t').value);
-    rebuildScene();
-    calculateBudget();
-  };
-
-  window.applyOpeningEdit = function(opId) {
-    const op = state.openings[opId];
-    if (!op) return;
-    op.width = Number(document.getElementById('edit-op-w').value);
-    op.height = Number(document.getElementById('edit-op-h').value);
-    op.offsetFromStart = Number(document.getElementById('edit-op-off').value);
-    op.sillHeight = Number(document.getElementById('edit-op-sill').value);
-    rebuildScene();
-    calculateBudget();
-  };
-
-  window.deleteOpening = function(opId) {
-    delete state.openings[opId];
-    selectedObject = null;
-    rebuildScene();
-    calculateBudget();
-  };
-
-  function calculateBudget() {
-    const MM2_PER_M2 = 1_000_000;
-    let totalGrossWallAreaMm2 = 0;
-    let totalOpeningsAreaMm2 = 0;
-    let totalWindowsAreaMm2 = 0;
-    let doorCount = 0;
-
-    for (const wall of Object.values(state.walls)) {
-      const nStart = state.nodes[wall.startNodeId];
-      const nEnd = state.nodes[wall.endNodeId];
-      if (!nStart || !nEnd) continue;
-      const lengthMm = Math.round(Math.hypot(nEnd.x - nStart.x, nEnd.y - nStart.y));
-      const grossAreaMm2 = lengthMm * wall.height;
-
-      let wallOpeningsMm2 = 0;
-      for (const op of Object.values(state.openings)) {
-        if (op.wallId === wall.id) {
-          const opAreaMm2 = op.width * op.height;
-          wallOpeningsMm2 += opAreaMm2;
-          if (op.type === 'ventana') totalWindowsAreaMm2 += opAreaMm2;
-          if (op.type === 'puerta') doorCount += 1;
-        }
-      }
-      totalGrossWallAreaMm2 += grossAreaMm2;
-      totalOpeningsAreaMm2 += wallOpeningsMm2;
-    }
-
-    const netWallM2 = Math.max(0, totalGrossWallAreaMm2 - totalOpeningsAreaMm2) / MM2_PER_M2;
-    const floorM2 = (state.length * state.width) / MM2_PER_M2;
-
-    let items = [
-      { name: 'Estructura Chapa Acanalada ISO', qty: `${netWallM2.toFixed(1)} m²`, subtotal: Math.round(netWallM2 * 28000) },
-      { name: 'Kit Aislación & Revestimiento', qty: `${netWallM2.toFixed(1)} m²`, subtotal: Math.round(netWallM2 * 18000) },
-      { name: 'Piso SPC / Terciado Marino', qty: `${floorM2.toFixed(1)} m²`, subtotal: Math.round(floorM2 * 22000) }
-    ];
-
-    if (totalWindowsAreaMm2 > 0) {
-      const wM2 = totalWindowsAreaMm2 / MM2_PER_M2;
-      items.push({ name: 'Ventanas Termopanel PVC', qty: `${wM2.toFixed(1)} m²`, subtotal: Math.round(wM2 * 145000) });
-    }
-    if (doorCount > 0) {
-      items.push({ name: 'Puertas de Seguridad', qty: `${doorCount} un.`, subtotal: doorCount * 125000 });
-    }
-
-    state.customApus.forEach(apu => {
-      items.push({ name: `🛠️ ${apu.name}`, qty: `${apu.qty} ${apu.unit}`, subtotal: apu.price * apu.qty });
-    });
-
-    let subtotalNeto = items.reduce((acc, it) => acc + it.subtotal, 0);
-    subtotalNeto += state.flete;
-    
-    const margenFactor = 1 + (state.margen / 100);
-    const totalNetoComercial = Math.round(subtotalNeto * margenFactor);
-    const iva = Math.round(totalNetoComercial * 0.19);
-    const totalFinal = totalNetoComercial + iva;
-
-    document.getElementById('lbl-total').textContent = '$' + totalFinal.toLocaleString('es-CL');
-    document.getElementById('lbl-muros').textContent = netWallM2.toFixed(1) + ' m²';
-    document.getElementById('lbl-piso').textContent = floorM2.toFixed(1) + ' m²';
-
-    document.getElementById('ui-items').innerHTML = items.map(it => `
-      <div class="budget-row"><span>${it.name} (${it.qty})</span><strong>$${it.subtotal.toLocaleString('es-CL')}</strong></div>
-    `).join('') + `
-      <div class="budget-row"><span>Flete / Transporte</span><strong>$${state.flete.toLocaleString('es-CL')}</strong></div>
-      <div class="budget-row"><span>IVA (19%)[cite: 7]</span><strong>$${iva.toLocaleString('es-CL')}</strong></div>
-    `;
-  }
-
-  window.addEventListener('resize', () => {
+  function onWindowResize() {
     camera.aspect = container.clientWidth / container.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
-  });
+  }
 
   function animate() {
     requestAnimationFrame(animate);
@@ -583,9 +353,255 @@
     renderer.render(scene, camera);
   }
 
-  updateProject();
-  animate();
-})();
+  function resetCamera() {
+    camera.position.set(12, 10, 16);
+    controls.target.set(3, 1, 0);
+  }
+
+  function toggleWireframe() {
+    wireframeMode = !wireframeMode;
+    rebuildScene();
+  }
+
+  function toggleShadows() {
+    shadowsEnabled = !shadowsEnabled;
+    renderer.shadowMap.enabled = shadowsEnabled;
+    rebuildScene();
+  }
+
+  function rebuildScene() {
+    while(meshGroup.children.length > 0){ 
+      meshGroup.remove(meshGroup.children[0]); 
+    }
+
+    modules.forEach((mod, idx) => {
+      const group = new THREE.Group();
+      
+      // Estructura chasis base
+      const baseGeo = new THREE.BoxGeometry(mod.largo, 0.15, mod.ancho);
+      const baseMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, wireframe: wireframeMode, roughness: 0.4 });
+      const baseMesh = new THREE.Mesh(baseGeo, baseMat);
+      baseMesh.position.y = 0.075;
+      group.add(baseMesh);
+
+      // Muros
+      const wallMat = new THREE.MeshStandardMaterial({ 
+        color: mod.type === 'sanitary' ? 0x06d6a0 : (mod.spec === 'premium' ? 0x3b82f6 : 0x94a3b8), 
+        wireframe: wireframeMode,
+        roughness: 0.3
+      });
+
+      // Muro Frontal/Trasero
+      const wallFBGeo = new THREE.BoxGeometry(mod.largo, mod.alto, 0.1);
+      const wallF = new THREE.Mesh(wallFBGeo, wallMat);
+      wallF.position.set(0, mod.alto/2, mod.ancho/2 - 0.05);
+      const wallB = new THREE.Mesh(wallFBGeo, wallMat);
+      wallB.position.set(0, mod.alto/2, -mod.ancho/2 + 0.05);
+      group.add(wallF); group.add(wallB);
+
+      // Muros Laterales
+      const wallLRGeo = new THREE.BoxGeometry(0.1, mod.alto, mod.ancho - 0.1);
+      const wallL = new THREE.Mesh(wallLRGeo, wallMat);
+      wallL.position.set(-mod.largo/2 + 0.05, mod.alto/2, 0);
+      const wallR = new THREE.Mesh(wallLRGeo, wallMat);
+      wallR.position.set(mod.largo/2 - 0.05, mod.alto/2, 0);
+      group.add(wallL); group.add(wallR);
+
+      // Techo
+      const roofGeo = new THREE.BoxGeometry(mod.largo + 0.2, 0.1, mod.ancho + 0.2);
+      const roofMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, wireframe: wireframeMode });
+      const roof = new THREE.Mesh(roofGeo, roofMat);
+      roof.position.y = mod.alto + 0.05;
+      group.add(roof);
+
+      group.position.set(mod.x, 0, mod.z);
+      meshGroup.add(group);
+    });
+
+    updateCalculations();
+  }
+
+  function addModule() {
+    const type = document.getElementById('mod-type').value;
+    const spec = document.getElementById('mod-spec').value;
+    const largo = parseFloat(document.getElementById('mod-largo').value);
+    const ancho = parseFloat(document.getElementById('mod-ancho').value);
+    const alto = parseFloat(document.getElementById('mod-alto').value);
+    const aislacion = parseInt(document.getElementById('mod-aislacion').value);
+
+    let nextX = 0;
+    if (modules.length > 0) {
+      const last = modules[modules.length - 1];
+      nextX = last.x + last.largo + 0.5;
+    }
+
+    modules.push({
+      id: Date.now(),
+      type, spec, largo, ancho, alto, aislacion,
+      x: nextX, z: 0
+    });
+
+    rebuildScene();
+  }
+
+  function removeModule(id) {
+    modules = modules.filter(m => m.id !== id);
+    rebuildScene();
+  }
+
+  function updateCalculations() {
+    document.getElementById('mod-count').textContent = modules.length;
+
+    let totalPiso = 0;
+    let totalMuros = 0;
+    let totalPeso = 0;
+    let items = [];
+
+    modules.forEach((m, idx) => {
+      const area = m.largo * m.ancho;
+      const muros = 2 * (m.largo + m.ancho) * m.alto;
+      totalPiso += area;
+      totalMuros += muros;
+      totalPeso += (area * 0.18); // Toneladas estimadas
+
+      let baseCost = area * 350000;
+      if (m.spec === 'premium') baseCost *= 1.35;
+      if (m.type === 'sanitary') baseCost *= 1.5;
+
+      items.push({
+        name: `Módulo ${idx+1} (${m.type.toUpperCase()} - ${m.largo}x${m.ancho}m)`,
+        subtotal: Math.round(baseCost)
+      });
+    });
+
+    document.getElementById('lbl-piso').textContent = totalPiso.toFixed(1) + ' m²';
+    document.getElementById('lbl-muros').textContent = totalMuros.toFixed(1) + ' m²';
+    document.getElementById('lbl-peso').textContent = totalPeso.toFixed(1) + ' Ton';
+    document.getElementById('lbl-u').textContent = (0.35 - (modules.length * 0.01)).toFixed(2) + ' W/m²K';
+
+    // Lista UI
+    document.getElementById('module-list').innerHTML = modules.map(m => `
+      <div class="module-item">
+        <span><b>${m.type.toUpperCase()}</b> (${m.largo}x${m.ancho}m)</span>
+        <button onclick="removeModule(${m.id})">🗑️</button>
+      </div>
+    `).join('');
+
+    const flete = parseFloat(document.getElementById('proj-flete').value) || 0;
+    const margen = parseFloat(document.getElementById('proj-margin').value) || 25;
+    const currency = document.getElementById('proj-currency').value;
+    const rate = parseFloat(document.getElementById('proj-rate').value) || 38000;
+
+    let subtotalNeto = items.reduce((acc, it) => acc + it.subtotal, 0) + flete;
+    let netoComercial = subtotalNeto * (1 + (margen / 100));
+    let iva = netoComercial * 0.19;
+    let total = netoComercial + iva;
+
+    let symbol = '$';
+    let divisor = 1;
+    if (currency === 'UF') { symbol = 'UF '; divisor = rate; }
+    else if (currency === 'USD') { symbol = 'US$ '; divisor = 950; }
+
+    const formatVal = (val) => {
+      let conv = val / divisor;
+      if (currency === 'CLP') return '$' + Math.round(conv).toLocaleString('es-CL');
+      return symbol + conv.toLocaleString('es-CL', {maximumFractionDigits: 2});
+    };
+
+    document.getElementById('lbl-total').textContent = formatVal(total);
+
+    document.getElementById('ui-items').innerHTML = items.map(it => `
+      <div class="budget-row"><span>${it.name}</span><strong>${formatVal(it.subtotal)}</strong></div>
+    `).join('') + `
+      <div class="budget-row"><span>Flete y Montaje Grúa</span><strong>${formatVal(flete)}</strong></div>
+      <div class="budget-row"><span>Margen Comercial (${margen}%)</span><strong>Incluido</strong></div>
+      <div class="budget-row"><span>IVA (19%)</span><strong>${formatVal(iva)}</strong></div>
+    `;
+
+    // Tabla APU
+    const apuBody = document.getElementById('apu-table-body');
+    const netTotal = netoComercial;
+    apuBody.innerHTML = `
+      <tr><td>1. Obras Preliminares & Ingeniería BIM</td><td>8%</td><td>${formatVal(netTotal * 0.08)}</td></tr>
+      <tr><td>2. Estructura Metálica y Chasis ASTM A36</td><td>32%</td><td>${formatVal(netTotal * 0.32)}</td></tr>
+      <tr><td>3. Panelería SIP / Aislación Térmica</td><td>26%</td><td>${formatVal(netTotal * 0.26)}</td></tr>
+      <tr><td>4. Terminaciones, Pisos y Revestimientos</td><td>18%</td><td>${formatVal(netTotal * 0.18)}</td></tr>
+      <tr><td>5. Instalaciones Eléctricas y Sanitarias SEC</td><td>16%</td><td>${formatVal(netTotal * 0.16)}</td></tr>
+    `;
+  }
+
+  function updateProject() {
+    updateCalculations();
+  }
+
+  function switchTab(tabName, event) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+  }
+
+  function exportJSON() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ modules, config: document.getElementById('proj-name').value }, null, 2));
+    const dlAnchorElem = document.createElement('a');
+    dlAnchorElem.setAttribute("href", dataStr);
+    dlAnchorElem.setAttribute("download", "proyecto_cubikeitor_bim.json");
+    dlAnchorElem.click();
+  }
+
+  function exportXLSX() {
+    const wb = XLSX.utils.book_new();
+    
+    // Hoja Resumen
+    const wsData = [
+      ["PROYECTO MODULAR CUBIKEITOR 3000 PRO+"],
+      ["Cliente / Proyecto", document.getElementById('proj-name').value],
+      ["Fecha", new Date().toLocaleDateString()],
+      [],
+      ["ID", "Tipo", "Largo (m)", "Ancho (m)", "Alto (m)", "Aislación (mm)"]
+    ];
+    modules.forEach((m, i) => {
+      wsData.push([i+1, m.type, m.largo, m.ancho, m.alto, m.aislacion]);
+    });
+    
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "Módulos BIM");
+    XLSX.writeFile(wb, "Presupuesto_Cubikeitor.xlsx");
+  }
+
+  function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, 210, 40, "F");
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.text("CUBIKEITOR 3000 PRO+", 14, 20);
+    doc.setFontSize(10);
+    doc.text("Dossier Técnico, Memoria de Cálculo & Cotización Modular", 14, 28);
+    
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(12);
+    doc.text("1. Datos Generales del Proyecto", 14, 55);
+    doc.setFontSize(10);
+    doc.text(`Proyecto: ${document.getElementById('proj-name').value}`, 14, 63);
+    doc.text(`Total Módulos: ${modules.length}`, 14, 70);
+    doc.text(`Superficie Total Útil: ${document.getElementById('lbl-piso').textContent}`, 14, 77);
+    doc.text(`Costo Total Final (con IVA): ${document.getElementById('lbl-total').textContent}`, 14, 84);
+    
+    doc.setFontSize(12);
+    doc.text("2. Especificaciones Constructivas", 14, 100);
+    doc.setFontSize(10);
+    doc.text("- Estructura soportante en perfilería de acero ASTM A36 con soldadura MIG.", 14, 108);
+    doc.text("- Paneles SIP con poliuretano de alta densidad (cumplimiento OGUC Zona 3).", 14, 115);
+    doc.text("- Instalación eléctrica certificada SEC y sanitaria embutida.", 14, 122);
+    
+    doc.save("Cotizacion_Oficial_Cubikeitor.pdf");
+  }
+
+  window.onload = init3D;
 </script>
 </body>
 </html>
