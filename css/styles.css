@@ -1,0 +1,11 @@
+/* Estilos base optimizados para CUBIKEITOR 3000 */
+body {
+    background-color: #030712;
+    color: #f8fafc;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
