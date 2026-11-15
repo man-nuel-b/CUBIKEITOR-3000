@@ -23,3 +23,25 @@ test('legacy dimensions from dimensionProvider have priority',()=>{
  const r=adapter.projectLegacy(make(),DATA,(type)=>type==='window'?{width:1.5,height:1.1}:null);
  assert.equal(r.model.openings[0].widthMm,1500);
 });
+
+test('worker failure computes latest pending quote through synchronous fallback',()=>{
+ let task,results=[],errors=[];
+ const worker={postMessage:()=>{},terminate:()=>{}};
+ const controller=createController({worker,computeSync:s=>({revision:s.revision}),onQuote:(v)=>results.push(v),onError:v=>errors.push(v),setTimer:f=>(task=f,1),clearTimer:()=>{}});
+ controller.request({revision:11},{currency:'CLP'});task();
+ worker.onerror();
+ assert.deepEqual(results,[{revision:11}]);assert.equal(errors.length,1);
+ controller.close();
+});
+test('wall metadata and 3D point placement are derived from authoritative openings',()=>{
+ const store=core.createStore(),before=core.wallMetadata(store.getState(),'A');
+ assert.equal(before.openings.length,0);
+ const opening=core.openingFromWallPoint(store.getState(),{face:'A',x:0,y:1.4,z:1.22,type:'window',id:'direct1',widthMm:1200,heightMm:1050});
+ store.dispatch({type:'ADD_OPENING',opening});
+ const after=core.wallMetadata(store.getState(),'A');
+ assert.equal(after.openings.length,1);
+ assert.equal(after.openingAreaMm2,1260000);
+ assert.equal(after.revision,store.getState().revision);
+ assert.equal(core.wallMetadata(store.getState(),'B').openings.length,0);
+ assert.throws(()=>core.openingFromWallPoint(store.getState(),{face:'A',x:0,y:1.4,z:1.22,type:'window',id:'direct2',widthMm:1200,heightMm:1050}),/superpuestos/);
+});
