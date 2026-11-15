@@ -11,11 +11,11 @@ function cutWallSegments(wall,nodes,openings,vector){
  const t=VM.getWallTransform(wall,nodes);
  const holes=(openings||[]).map(o=>{
   assert(o.wallId===wall.id,'La abertura pertenece a otro muro');
-  assert(['ventana','puerta'].includes(o.type),'Tipo de abertura inválido');
+  assert(['ventana','puerta','vano'].includes(o.type),'Tipo de abertura inválido');
   assert(valid(o.offsetFromStart,0,1000000)&&valid(o.sillHeight,0,10000)&&valid(o.width,300,6000)&&valid(o.height,300,5000),'Dimensiones o posición de abertura inválidas');
   assert(o.offsetFromStart>=100&&o.offsetFromStart+o.width<=t.lengthMm-100,'Abertura fuera del muro');
   assert(o.sillHeight+o.height<=wall.height-100,'Abertura supera altura del muro');
-  assert(o.type!=='puerta'||o.sillHeight===0,'Puerta elevada');
+  assert((o.type!=='puerta'&&o.type!=='vano')||o.sillHeight===0,'Puerta elevada');
   return {z0:o.offsetFromStart,z1:o.offsetFromStart+o.width,y0:o.sillHeight,y1:o.sillHeight+o.height,id:o.id};
  });
  for(let i=0;i<holes.length;i++)for(let j=i+1;j<holes.length;j++){
