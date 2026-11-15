@@ -35,7 +35,7 @@ test('snap merges endpoints of two independent walls by ID instead of duplicatin
  s.nodes.n5={id:'n5',x:14000,y:5000};
  s.nodes.n6={id:'n6',x:16500,y:5000};
  s.walls.w5={id:'w5',startNodeId:'n5',endNodeId:'n6',height:2591,thickness:120,type:'tabique_interior'};
- const out=C.moveConnectedNode(s,'n5',12190,2439,{threshold:150}),n=out.state;
+ const out=C.moveConnectedNode(s,'n5',6055,2439,{threshold:150}),n=out.state;
  assert.equal(out.snappedTo.type,'node');
  assert.equal(out.snappedTo.id,'n3');
  assert.equal(n.nodes.n5,undefined);
