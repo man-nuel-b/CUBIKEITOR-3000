@@ -31,6 +31,7 @@ jobs:
           node --check src/iso-presets.js
           node --check src/iso-structure.js
           node --check src/inspector-core.js
+          node --check src/apu-engine.js
           node --check src/connected-corners.js
           node --check src/vector-wall-mesh.js
           node --check src/wall-cutouts.js
@@ -50,6 +51,7 @@ jobs:
           test -f dist/cubikeitor-iso.html
           test -f dist/cubikeitor-cpq-pro.html
           test -f dist/src/inspector-core.js
+          test -f dist/src/apu-engine.js
           test -f dist/src/connected-corners.js
           test -f dist/src/iso-presets.js
           test -f dist/src/iso-structure.js
