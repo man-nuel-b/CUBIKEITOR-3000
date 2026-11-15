@@ -11,10 +11,30 @@ function validateState(s){assert(s&&s.schemaVersion===1,'Versión de esquema inv
 return true;}
 function validateCommand(cmd){assert(cmd&&typeof cmd==='object'&&!Array.isArray(cmd),'Comando inválido');assert(['ADD_OPENING','RESIZE_OPENING','MOVE_OPENING','REMOVE_OPENING','SET_FINISH','SET_CONTAINER'].includes(cmd.type),'Tipo de comando no permitido');if(cmd.type==='ADD_OPENING'){assert(cmd.opening&&typeof cmd.opening==='object','Falta la abertura');}if(['RESIZE_OPENING','MOVE_OPENING','REMOVE_OPENING'].includes(cmd.type))assert(typeof cmd.id==='string','Falta ID');if(cmd.type==='SET_FINISH')assert(['standard','sanitary'].includes(cmd.finish),'Terminación no permitida');if(cmd.type==='SET_CONTAINER')assert(cmd.container&&typeof cmd.container==='object','Módulo inválido');return true;}
 function reduce(s,cmd){validateCommand(cmd);const next=clone(s);const idx=()=>{const i=next.openings.findIndex(o=>o.id===cmd.id);assert(i>=0,'No existe abertura');return i;};switch(cmd.type){case'ADD_OPENING':next.openings.push(clone(cmd.opening));break;case'RESIZE_OPENING':{const i=idx();for(const k of ['widthMm','heightMm'])if(cmd[k]!==undefined)next.openings[i][k]=cmd[k];break;}case'MOVE_OPENING':{const i=idx();for(const k of ['face','offsetMm','bottomMm'])if(cmd[k]!==undefined)next.openings[i][k]=cmd[k];break;}case'REMOVE_OPENING':next.openings.splice(idx(),1);break;case'SET_FINISH':next.finish=cmd.finish;break;case'SET_CONTAINER':next.container={...next.container,...clone(cmd.container)};break;}validateState(next);next.revision=s.revision+1;return next;}
+function wallMetadata(state,face){
+ validateState(state);
+ assert(Object.prototype.hasOwnProperty.call(FACE_LENGTH,face),'Cara inválida');
+ const wallLengthMm=state.container[FACE_LENGTH[face]],heightMm=state.container.heightMm;
+ const openings=state.openings.filter(o=>o.face===face).map(o=>({id:o.id,type:o.type,offsetMm:o.offsetMm,bottomMm:o.bottomMm,widthMm:o.widthMm,heightMm:o.heightMm}));
+ const grossAreaMm2=wallLengthMm*heightMm;
+ const openingAreaMm2=openings.reduce((sum,o)=>sum+o.widthMm*o.heightMm,0);
+ return {face,wallLengthMm,heightMm,openings,grossAreaMm2,openingAreaMm2,netAreaMm2:grossAreaMm2-openingAreaMm2,revision:state.revision};
+}
+function openingFromWallPoint(state,{face,x,y,z,type,id,widthMm,heightMm}){
+ assert(Object.prototype.hasOwnProperty.call(FACE_LENGTH,face),'Cara inválida');
+ assert(TYPES.includes(type),'Tipo inválido');
+ const axis=(face==='A'||face==='B')?x:z;
+ const mm=Math.round((axis+state.container[FACE_LENGTH[face]]/2000)*1000);
+ const offsetMm=Math.max(100,Math.min(state.container[FACE_LENGTH[face]]-widthMm-100,mm-Math.floor(widthMm/2)));
+ const bottomMm=type==='door'?0:Math.max(0,Math.min(state.container.heightMm-heightMm-100,Math.round(y*1000-heightMm/2)));
+ const opening={id,type,face,widthMm,heightMm,offsetMm,bottomMm};
+ validateState({...state,openings:[...state.openings,opening]});
+ return opening;
+}
 function createStore(initial=initialState()){let current=clone(initial);validateState(current);let past=[],future=[],listeners=new Set();const publish=(type,command)=>listeners.forEach(fn=>fn(clone(current),{type,command}));return {getState:()=>clone(current),subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn)},dispatch(command){const next=reduce(current,command);past.push(current);if(past.length>100)past.shift();future=[];current=next;publish('change',command);return clone(current)},undo(){if(!past.length)return false;future.push(current);const snapshot=past.pop();current={...snapshot,revision:current.revision+1};publish('undo');return true},redo(){if(!future.length)return false;past.push(current);const snapshot=future.pop();current={...snapshot,revision:current.revision+1};publish('redo');return true},replace(state){const next=clone(state);validateState(next);past=[];future=[];current={...next,revision:current.revision+1};publish('replace');},canUndo:()=>past.length>0,canRedo:()=>future.length>0};}
 // Integer arithmetic. All geometry uses integer mm; money is CLP integer.
 function ceilDiv(a,b){return (a+b-1n)/b;}
 function computeQuote(state,prices){validateState(state);assert(prices&&prices.currency==='CLP'&&prices.items,'Maestro de precios inválido');const c=state.container;const perimeter=BigInt(2*(c.lengthMm+c.widthMm));const grossWall=perimeter*BigInt(c.heightMm);const holes=state.openings.reduce((a,o)=>a+BigInt(o.widthMm)*BigInt(o.heightMm),0n);const netWall=grossWall-holes;assert(netWall>=0n,'Superficie neta inválida');const floor=BigInt(c.lengthMm)*BigInt(c.widthMm);
 const waste=BigInt(prices.wastePct??10);assert(waste>=0n&&waste<=50n,'Merma inválida');const panels=ceilDiv(netWall*(100n+waste),100n*2880000n);const floorPanels=ceilDiv(floor*(100n+waste),100n*2440000n);const lines=[{code:'WALL_PANEL',label:state.finish==='sanitary'?'Panel de muro sanitario':'Panel de muro',qty:panels,unit:'placa'},{code:'FLOOR_PANEL',label:'Placa de piso',qty:floorPanels,unit:'placa'}];for(const type of TYPES){const count=state.openings.filter(o=>o.type===type).length;if(count)lines.push({code:type==='window'?'WINDOW':'DOOR',label:type==='window'?'Ventana':'Puerta',qty:BigInt(count),unit:'unidad'});}let subtotal=0n,complete=true;const rows=lines.map(l=>{const unit=prices.items[l.code];const valid=isInt(unit,0,100000000);if(!valid)complete=false;const amount=valid?l.qty*BigInt(unit):null;if(amount!==null)subtotal+=amount;return {code:l.code,label:l.label,quantity:Number(l.qty),unit:l.unit,unitPriceCLP:valid?unit:null,totalCLP:amount===null?null:Number(amount)};});const taxBps=prices.taxBps??1900;assert(isInt(taxBps,0,10000),'IVA inválido');const tax=ceilDiv(subtotal*BigInt(taxBps),10000n);return {revision:state.revision,priceListVersion:prices.version,netAreaM2:Number(netWall)/1e6,floorAreaM2:Number(floor)/1e6,lines:rows,complete,subtotalCLP:complete?Number(subtotal):null,taxCLP:complete?Number(tax):null,totalCLP:complete?Number(subtotal+tax):null,warnings:complete?[]:['Existen materiales sin precio validado. No se puede emitir cotización.']};}
-return{initialState,validateState,validateCommand,reduce,createStore,computeQuote};
+return{initialState,validateState,validateCommand,reduce,createStore,computeQuote,wallMetadata,openingFromWallPoint};
 });
