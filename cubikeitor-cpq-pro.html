@@ -1,0 +1,118 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CUBIKEITOR 3000 PRO · Inspector 3D</title><style>
+:root{font-family:system-ui;background:#0f172a;color:#f8fafc}*{box-sizing:border-box}body{margin:0}header{padding:16px 22px;background:#0b1120;border-bottom:1px solid #334155;display:flex;justify-content:space-between}header strong{color:#f59e0b}header span{font-size:12px;color:#94a3b8}main{display:grid;grid-template-columns:310px minmax(320px,1fr) 310px;gap:12px;padding:12px;height:calc(100vh - 60px)}section{border:1px solid #334155;background:#1e293b;border-radius:12px;padding:17px;overflow:auto;min-height:0}h2{font-size:16px;border-bottom:1px solid #334155;padding-bottom:10px}h3{font-size:14px;color:#cbd5e1;margin-top:23px}label{display:block;color:#94a3b8;font-size:12px;margin:9px 0 5px}input,select{width:100%;padding:9px;background:#0f172a;border:1px solid #475569;color:white;border-radius:7px}button{background:#f59e0b;border:none;padding:11px 13px;border-radius:8px;font-weight:700;cursor:pointer;margin-top:12px;width:100%;color:#111827}.secondary{background:#475569;color:white}button:disabled{opacity:.4}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.viewport{position:relative;padding:0;overflow:hidden}#view{height:100%;width:100%}.hud{position:absolute;bottom:12px;left:12px;right:12px;padding:10px;border-radius:9px;background:#0b1422e6;color:#cbd5e1;font-size:12px}.price{color:#fbbf24;font-size:31px;font-weight:800}.line{padding:9px 0;border-bottom:1px solid #334155;font-size:12px;display:flex;justify-content:space-between;gap:8px}.line span{color:#cbd5e1}.line strong{text-align:right}.muted{font-size:12px;color:#94a3b8;line-height:1.5}.error{color:#fda4af;font-size:12px;min-height:14px}a{color:#fbbf24}@media(max-width:1000px){main{grid-template-columns:270px 1fr;height:auto}.budget{grid-column:1/-1}.viewport{height:65vh}}@media(max-width:660px){main{display:flex;flex-direction:column}.viewport{height:55vh;min-height:330px}header{flex-wrap:wrap;gap:8px}}
+.inspector{border:1px solid #365e89;border-radius:10px;background:#142b46;padding:12px;margin-bottom:18px}.inspector h3{margin:0 0 8px}.danger{background:#b91c1c;color:white}.inspector .muted{margin:8px 0}@media print{header,.viewport,main>section:first-child{display:none!important}main{display:block;height:auto}.budget{color:#111;background:white;border:none}.muted{color:#555}}</style></head><body><header><div><strong>CUBIKEITOR 3000</strong> · PRO / Inspector 3D interactivo</div><span id="revision">Revisión 0</span></header><main>
+<section><h2>🎯 Inspector de elementos 3D</h2><div class="inspector" id="inspector"><p class="muted">Haz clic en un muro, puerta o ventana para seleccionarlo y editarlo.</p></div><h2>📦 Modelos de contenedor</h2>
+<label for="iso-model">Tipología base</label>
+<select id="iso-model"><option value="20ft">Contenedor 20 ft (6058 × 2438 × 2591 mm)</option><option value="40ft">Contenedor 40 ft (12192 × 2438 × 2591 mm)</option><option value="20ftHC">20 ft High Cube ref. (6058 × 2438 × 2896 mm)</option><option value="oficinaModular">Oficina 6 × 3 m (6000 × 3000 × 2600 mm)</option></select>
+<button class="secondary" id="iso-apply">Cargar modelo seleccionado</button>
+<p class="muted" id="model-info">Dimensiones exteriores nominales. Espesores, refuerzos y espacios útiles interiores sin certificación estructural.</p>
+<h2>⚡ Asistente Flash</h2><p class="muted">Describe cantidades de ventanas, puertas y vanos. Interpretación por reglas, no IA generativa.</p>
+<label for="ai-prompt">Pedido del cliente</label><textarea id="ai-prompt" rows="3" style="width:100%;resize:vertical;min-height:85px;background:#0f172a;color:white;border:1px solid #475569;border-radius:7px;padding:10px">Necesito un contenedor con dos puertas, tres ventanas y un vano de acceso</textarea>
+<button id="ai-process">Interpretar y distribuir en 3D</button><p class="muted" id="interpretation">Máximo 24 elementos por solicitud. Distribución sujeta al espacio disponible.</p>
+
+<h2>Herramientas manuales</h2><h3>1. Dibujar muro vectorial</h3><div class="two"><div><label>Inicio X (mm)</label><input type="number" id="x1" value="6000"></div><div><label>Inicio Y (mm)</label><input type="number" id="y1" value="0"></div><div><label>Fin X (mm)</label><input type="number" id="x2" value="9000"></div><div><label>Fin Y (mm)</label><input type="number" id="y2" value="0"></div></div><button id="add-wall">+ Trazar muro con snapping</button>
+<h3>2. Insertar abertura</h3><div class="two"><div><label>Tipo</label><select id="type"><option value="ventana">Ventana</option><option value="puerta">Puerta</option><option value="vano">Vano libre</option></select></div><div><label>Muro destino</label><select id="target"></select></div><div><label>Ancho (mm)</label><input type="number" id="width" value="1200"></div><div><label>Alto (mm)</label><input type="number" id="height" value="1050"></div><div><label>Desde inicio (mm)</label><input type="number" id="offset" value="2200"></div><div><label>Antepecho (mm)</label><input type="number" id="sill" value="900"></div></div><button id="add-opening">+ Insertar abertura</button><div class="two"><button class="secondary" id="undo" disabled>↶ Deshacer</button><button class="secondary" id="redo" disabled>↷ Rehacer</button></div><p class="error" id="error"></p><p class="muted">Imantación hasta 150 mm. Las uniones en T requieren dividir previamente el muro de apoyo; esta versión las detecta y avisa.</p><a href="./">Volver al visor principal</a></section>
+<section class="viewport"><div id="view"></div><div id="hud" class="hud">Arrastra para girar · rueda para acercar · clic para seleccionar un muro</div></section>
+<section class="budget"><h2>Cubicación y presupuesto referencial</h2><p class="muted">Precios unitarios de demostración, no incluye estructura portante certificada, mano de obra, flete ni ingeniería.</p><div class="price" id="total">$0</div><button class="secondary" onclick="window.print()">Imprimir / Guardar como PDF</button><h3>Dimensiones exteriores nominales</h3><div class="line"><span>Modelo</span><strong id="model-label">—</strong></div><div class="line"><span>Largo × ancho × alto</span><strong id="dimensions">—</strong></div><h3>Métricas geométricas</h3><div class="line"><span>Muros brutos</span><strong id="gross">—</strong></div><div class="line"><span>Aberturas</span><strong id="holes">—</strong></div><div class="line"><span>Muros netos</span><strong id="net">—</strong></div><div class="line"><span>Superficie de planta exterior</span><strong id="floor">—</strong></div><h3>Materiales estimados</h3><div id="items"></div><div class="line"><span>Subtotal</span><strong id="subtotal">—</strong></div><div class="line"><span>IVA 19%</span><strong id="iva">—</strong></div><p class="muted">La superficie de planta corresponde al perímetro exterior inicial; NO corresponde al área útil interior. No calcula múltiples recintos ni refuerzos estructurales.</p></section>
+</main><script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script><script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script><script src="src/inspector-core.js"></script><script src="src/cpq-parser.js"></script><script src="src/iso-presets.js"></script><script src="src/iso-structure.js"></script><script src="src/floor-plan-core.js"></script><script src="src/snap-engine.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
+<script>(function(){'use strict';
+const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,CPQ=window.CubikeitorCPQ,ISO=window.CubikeitorISO,INS=window.CubikeitorInspector,STRUCT=window.CubikeitorISOStructure,SNAP=window.CubikeitorSnap,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
+const clone=x=>JSON.parse(JSON.stringify(x));let state=ISO.buildPreset("20ft"),past=[],future=[],selected=null;const fmt=n=>new Intl.NumberFormat('es-CL',{style:'currency',currency:'CLP',maximumFractionDigits:0}).format(n);
+const integer=id=>{const value=Number($(id).value);if(!Number.isSafeInteger(value))throw Error('Valor inválido (mm enteros): '+id);return value;};
+const nextId=(prefix,items)=>{let i=1;while(Object.hasOwn(items,prefix+i))i++;return prefix+i;};
+function commit(change){try{const next=clone(state);change(next);next.revision=state.revision+1;FP.validateProject(next);past.push(state);future=[];state=next;render();$('error').textContent='';}catch(e){$('error').textContent=e.message;}}
+function commitValidated(fn){try{const next=fn(state);FP.validateProject(next);past.push(state);future=[];state=next;render();$('error').textContent='';}catch(e){$('error').textContent=e.message;}}
+function validSelection(){return !!selected&&(selected.type==='wall'?!!state.walls[selected.id]:!!state.openings[selected.id]);}
+function formField(label,key,value){const box=document.createElement('div'),l=document.createElement('label'),input=document.createElement('input');l.textContent=label;input.type='number';input.step='1';input.value=value;input.dataset.field=key;box.append(l,input);return box;}
+function fieldValue(key){const input=$('inspector').querySelector('[data-field="'+key+'"]');if(!input||!input.value.trim()||!Number.isSafeInteger(Number(input.value)))throw Error('Se requieren milímetros enteros: '+key);return Number(input.value);}
+function inspect(){
+ const container=$('inspector');container.replaceChildren();
+ if(!validSelection()){selected=null;const p=document.createElement('p');p.className='muted';p.textContent='Haz clic en un muro o abertura 3D. El objeto seleccionado se iluminará de color amarillo.';container.append(p);return;}
+ const obj=selected.type==='wall'?state.walls[selected.id]:state.openings[selected.id],title=document.createElement('h3');title.textContent=(selected.type==='wall'?'Muro ':'Abertura ')+selected.id.toUpperCase();container.append(title);
+ if(selected.type==='wall'){
+  const a=state.nodes[obj.startNodeId],b=state.nodes[obj.endNodeId],p=document.createElement('p');p.className='muted';p.textContent='Longitud: '+Math.round(Math.hypot(b.x-a.x,b.y-a.y))+' mm';container.append(p);
+  container.append(formField('Altura (mm)','height',obj.height),formField('Espesor (mm)','thickness',obj.thickness));
+ }else{
+  const p=document.createElement('p');p.className='muted';p.textContent=obj.type.toUpperCase()+' en muro '+obj.wallId.toUpperCase();container.append(p);
+  container.append(formField('Ancho (mm)','width',obj.width),formField('Altura (mm)','height',obj.height),formField('Distancia desde inicio (mm)','offsetFromStart',obj.offsetFromStart),formField('Antepecho (mm)','sillHeight',obj.sillHeight));
+ }
+ const save=document.createElement('button');save.textContent='Guardar cambios';save.onclick=()=>{
+  const current={...selected};commitValidated(st=>current.type==='wall'?
+   INS.editWall(st,current.id,{height:fieldValue('height'),thickness:fieldValue('thickness')},FP):
+   INS.editOpening(st,current.id,{width:fieldValue('width'),height:fieldValue('height'),offsetFromStart:fieldValue('offsetFromStart'),sillHeight:fieldValue('sillHeight')},FP));
+ };
+ const del=document.createElement('button');del.className='danger';del.textContent=selected.type==='wall'?'Eliminar muro y aberturas':'Eliminar abertura';del.onclick=()=>{
+  const current={...selected};if(current.type==='wall'&&!confirm('¿Eliminar este muro y las aberturas que contiene?'))return;
+  commitValidated(st=>INS.deleteElement(st,current.type,current.id,FP));
+  if(!validSelection()){selected=null;inspect();}
+ };
+ const clear=document.createElement('button');clear.className='secondary';clear.textContent='Quitar selección';clear.onclick=()=>{selected=null;render();};
+ container.append(save,del,clear);
+}
+function resolvePoint(next,x,y){const snap=SNAP.getSnappedPosition(x,y,next.nodes,next.walls,null,150);if(snap.snappedTo?.type==='node')return snap.snappedTo.id;if(snap.snappedTo?.type==='wall')throw Error('Punto sobre muro detectado: dividir el muro para crear una unión en T.');const id=nextId('n',next.nodes);next.nodes[id]={id,x:snap.x,y:snap.y};return id;}
+$('add-wall').onclick=()=>commit(next=>{const a=resolvePoint(next,integer('x1'),integer('y1')),b=resolvePoint(next,integer('x2'),integer('y2'));if(a===b)throw Error('El muro debe tener extremos diferentes');if(Object.values(next.walls).some(w=>(w.startNodeId===a&&w.endNodeId===b)||(w.startNodeId===b&&w.endNodeId===a)))throw Error('Este muro ya existe');const id=nextId('w',next.walls);next.walls[id]={id,startNodeId:a,endNodeId:b,height:2400,thickness:120,type:'tabique_interior'};});
+$('type').onchange=()=>{const d=CPQ.dimensions[$('type').value];$('width').value=d.width;$('height').value=d.height;$('sill').value=d.sillHeight;};
+$('ai-process').onclick=()=>{try{
+ const parsed=CPQ.parseOrder($('ai-prompt').value);
+ const preview=CPQ.distributeOnWalls(state,parsed.items);
+ commit(next=>{next.openings=preview;});
+ $('interpretation').textContent='Interpretado: '+parsed.summary.puerta+' puertas · '+parsed.summary.ventana+' ventanas · '+parsed.summary.vano+' vanos. Se reemplazaron las aberturas anteriores.';
+}catch(e){$('error').textContent=e.message;}};
+$('iso-apply').onclick=()=>{
+ try {
+  const next=ISO.buildPreset($('iso-model').value);
+  FP.validateProject(next);
+  past.push(state);future=[];state={...next,revision:state.revision+1};selected=null;
+  render();$('error').textContent='';
+  $('interpretation').textContent='Modelo cargado. Las aberturas del modelo anterior no se conservaron.';
+ }catch(e){$('error').textContent=e.message;}
+};
+$('add-opening').onclick=()=>commit(next=>{const id=nextId('op',next.openings);const opening={id,wallId:$('target').value,type:$('type').value,width:integer('width'),height:integer('height'),offsetFromStart:integer('offset'),sillHeight:integer('sill')};next.openings[id]=opening;});
+$('undo').onclick=()=>{if(!past.length)return;future.push(state);state={...past.pop(),revision:state.revision+1};render();};
+$('redo').onclick=()=>{if(!future.length)return;past.push(state);state={...future.pop(),revision:state.revision+1};render();};
+if(!window.THREE||!THREE.OrbitControls){$('error').textContent='Three.js no se cargó. Comprueba tu conexión.';return;}
+const mount=$('view'),scene=new THREE.Scene();scene.background=new THREE.Color(0x101e31);const camera=new THREE.PerspectiveCamera(48,1,.1,150);camera.position.set(10,9,12);const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));mount.append(renderer.domElement);const controls=new THREE.OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(3,1,2);scene.add(new THREE.HemisphereLight(0xffffff,0x3f506d,1.2));const sunlight=new THREE.DirectionalLight(0xffffff,.8);sunlight.position.set(7,14,5);scene.add(sunlight);scene.add(new THREE.GridHelper(22,22,0x7b8aa0,0x344960));
+const wallMeshes=new Map(),openingMeshes=new Map();let structure=null,lastCameraModel=null;
+function updateScene(){
+ if(structure){scene.remove(structure);STRUCT.disposeFrame(structure);structure=null;}
+ if(state.metadata?.model){structure=STRUCT.createISOFrame(ISO.getDimensions(state.metadata.model),THREE);scene.add(structure);}for(const [id,old] of wallMeshes)if(!state.walls[id]){scene.remove(old);WC.disposeWallGroup(old);wallMeshes.delete(id);}
+ for(const wall of Object.values(state.walls)){const holes=Object.values(state.openings).filter(o=>o.wallId===wall.id),old=wallMeshes.get(wall.id);const mesh=old?WC.updateCutWallMesh(old,wall,state.nodes,holes,THREE,VM):WC.createCutWallMesh(wall,state.nodes,holes,THREE,VM);if(!old)scene.add(mesh);wallMeshes.set(wall.id,mesh);}
+ for(const [id,old] of openingMeshes)if(!state.openings[id]||state.openings[id].type==='vano'){scene.remove(old);old.geometry.dispose();old.material.dispose();openingMeshes.delete(id);}
+ for(const opening of Object.values(state.openings)){if(opening.type==='vano')continue;const wall=state.walls[opening.wallId],old=openingMeshes.get(opening.id);const mesh=old?OM.updateVectorOpeningMesh(old,opening,wall,state.nodes,THREE,VM):OM.createVectorOpeningMesh(opening,wall,state.nodes,THREE,VM);if(!old)scene.add(mesh);openingMeshes.set(opening.id,mesh);}
+}
+function floorArea(){// Only the initial perimeter; additional room areas need topology.
+ const n=state.nodes;if(!['n1','n2','n3','n4'].every(id=>n[id]))return 0;
+ const pts=['n1','n2','n3','n4'].map(id=>n[id]);let sum=0;for(let i=0;i<4;i++)sum+=pts[i].x*pts[(i+1)%4].y-pts[(i+1)%4].x*pts[i].y;return Math.abs(sum)/2/1e6;
+}
+const catalogue={structure:{price:24500},insulation:{price:12500},floor:{price:21000},glass:{price:145000},door:{price:125000},vano:{price:65000}};
+function calculateBudget(){let gross=0,holes=0,windows=0,doors=0,vanos=0;for(const wall of Object.values(state.walls)){const a=state.nodes[wall.startNodeId],b=state.nodes[wall.endNodeId];gross+=Math.hypot(b.x-a.x,b.y-a.y)*wall.height/1e6;}for(const o of Object.values(state.openings)){const area=o.width*o.height/1e6;holes+=area;if(o.type==='ventana')windows+=area;else if(o.type==='puerta')doors++;else if(o.type==='vano')vanos+=area;}
+ const net=Math.max(0,gross-holes),floor=floorArea();
+ const lines=[['Revestimiento de acero referencial',net.toFixed(2)+' m²',Math.round(net*1.02*catalogue.structure.price)],['Aislación interior referencial',net.toFixed(2)+' m²',Math.round(net*1.05*catalogue.insulation.price)],['Piso técnico referencial',floor.toFixed(2)+' m²',Math.round(floor*1.08*catalogue.floor.price)],['Ventanas',windows.toFixed(2)+' m²',Math.round(windows*catalogue.glass.price)],['Puertas',doors+' unidades',doors*catalogue.door.price],['Vanos libres',vanos.toFixed(2)+' m²',Math.round(vanos*catalogue.vano.price)]];
+ const subtotal=lines.reduce((acc,line)=>acc+line[2],0),iva=Math.round(subtotal*.19);
+ return {gross,holes,net,floor,lines,subtotal,iva,total:subtotal+iva};
+}
+function highlight(){
+ for(const group of wallMeshes.values())group.traverse(o=>{if(!o.isMesh)return;o.material.color.setHex(selected?.type==='wall'&&selected.id===o.userData?.wallId?0xfbbf24:0xf0f0f0);});
+ for(const m of openingMeshes.values())m.material.color.setHex(selected?.type==='opening'&&selected.id===m.userData?.openingId?0xfbbf24:(m.userData?.openingKind==='ventana'?0x88ccff:0x8b5a2b));
+}
+function render(){FP.validateProject(state);updateScene();if(!validSelection())selected=null;highlight();inspect();if(state.metadata?.model!==lastCameraModel){lastCameraModel=state.metadata?.model;const dims=lastCameraModel?ISO.getDimensions(lastCameraModel):null;if(dims){const len=dims.length/1000,width=dims.width/1000;controls.target.set(len/2,1.2,width/2);camera.position.set(len/2+Math.max(6,len*.65),Math.max(6,len*.5),width/2+Math.max(7,len*.75));controls.update();}}const d=state.metadata?.model?ISO.getDimensions(state.metadata.model):null;$('model-label').textContent=d?d.label:'Planta libre';$('dimensions').textContent=d?d.length+' × '+d.width+' × '+d.height+' mm':'Variable';$('model-info').textContent=d?'Dimensiones exteriores nominales: '+d.length+' × '+d.width+' × '+d.height+' mm. La estructura 3D es ilustrativa.':'Planta sin tipología definida';$('revision').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros';$('undo').disabled=!past.length;$('redo').disabled=!future.length;
+ const select=$('target'),prev=select.value;select.replaceChildren();for(const wall of Object.values(state.walls)){const option=document.createElement('option');option.value=wall.id;const a=state.nodes[wall.startNodeId],b=state.nodes[wall.endNodeId];option.textContent=wall.id.toUpperCase()+' · '+Math.round(Math.hypot(b.x-a.x,b.y-a.y))+' mm';select.append(option);}if(state.walls[prev])select.value=prev;
+ const q=calculateBudget();$('gross').textContent=q.gross.toFixed(2)+' m²';$('holes').textContent=q.holes.toFixed(2)+' m²';$('net').textContent=q.net.toFixed(2)+' m²';$('floor').textContent=q.floor.toFixed(2)+' m²';$('total').textContent=fmt(q.total);$('subtotal').textContent=fmt(q.subtotal);$('iva').textContent=fmt(q.iva);$('items').replaceChildren();
+ for(const [name,quantity,cost] of q.lines){const row=document.createElement('div');row.className='line';const label=document.createElement('span');label.textContent=name+' ('+quantity+')';const value=document.createElement('strong');value.textContent=fmt(cost);row.append(label,value);$('items').append(row);}
+ $('hud').textContent='Revisión '+state.revision+' · '+Object.keys(state.walls).length+' muros · '+Object.keys(state.openings).length+' aberturas · arrastra para girar';
+}
+let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY};});
+renderer.domElement.addEventListener('pointerup',e=>{
+ if(!down||Math.hypot(e.clientX-down.x,e.clientY-down.y)>5){down=null;return;}down=null;
+ const rect=renderer.domElement.getBoundingClientRect();
+ const p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),ray=new THREE.Raycaster();
+ ray.setFromCamera(p,camera);
+ const hits=ray.intersectObjects([...openingMeshes.values(),...wallMeshes.values()],true);
+ selected=INS.resolveHit(hits,state);
+ if(selected?.type==='wall')$('target').value=selected.id;
+ render();
+});
+
+function resize(){const w=mount.clientWidth,h=mount.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}if(typeof ResizeObserver!=='undefined')new ResizeObserver(resize).observe(mount);else window.addEventListener('resize',resize);resize();render();(function loop(){requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)})();})();
+</script></body></html>
