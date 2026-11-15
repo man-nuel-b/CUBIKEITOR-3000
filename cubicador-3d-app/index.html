@@ -3,143 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cubicador 3D - Estimador de Materiales y Costos</title>
+    <title>Cubicador 3D Pro - Estimador de Materiales y Layouts</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col">
-
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
     <!-- Header -->
-    <header class="bg-slate-800 border-b border-slate-700 shadow-md">
+    <header class="bg-slate-900 border-b border-slate-800 shadow-lg sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="bg-blue-600 text-white p-2 rounded-lg font-bold text-xl">📐 C3D</div>
+                <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 text-white p-2.5 rounded-xl font-bold text-xl shadow-md">📐 3D</div>
                 <div>
-                    <h1 class="text-lg font-bold tracking-tight">Cubicador 3D Pro</h1>
-                    <p class="text-xs text-slate-400">Estimación inteligente para arquitectura y construcción</p>
+                    <h1 class="text-lg font-bold tracking-tight text-white">Cubicador 3D Pro</h1>
+                    <p class="text-xs text-slate-400">Motor de cálculo paramétrico para arquitectura y construcción</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                    v1.0.0 Stable
-                </span>
+            <div class="flex items-center space-x-3">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">Módulo de Planchas y Revestimientos</span>
             </div>
         </div>
     </header>
-
     <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        <!-- Panel de Configuración e Ingreso de Datos -->
-        <section class="lg:col-span-1 bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl flex flex-col justify-between">
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Panel de Parámetros y Configuración -->
+        <section class="lg:col-span-4 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl flex flex-col justify-between">
             <div>
-                <h2 class="text-xl font-semibold mb-4 text-blue-400 border-b border-slate-700 pb-2">Parámetros del Proyecto</h2>
-
+                <h2 class="text-lg font-bold mb-5 text-blue-400 border-b border-slate-800 pb-3 flex items-center justify-between">
+                    <span>Parámetros del Proyecto</span>
+                    <span class="text-xs font-normal text-slate-400">Entrada 3D</span>
+                </h2>
                 <form id="estimator-form" class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Tipo de Material / Superficie</label>
-                        <select id="material-type" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="plancha_yeso">Plancha de Yeso-Cartón (Volcanita/Gyplac)</option>
-                            <option value="ceramica">Cerámicos / Porcelanato</option>
-                            <option value="tabiquerija">Estructura Tabiquería Metalcon</option>
-                            <option value="aislacion">Aislación Térmica (Llana/Poliestireno)</option>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Tipo de Elemento / Material</label>
+                        <select id="material-type" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                            <option value="plancha">Plancha Estándar (2.44m x 1.22m)</option>
+                            <option value="ceramica">Cerámicos / Porcelanato (0.60m x 0.60m)</option>
+                            <option value="panel_comercial">Panel Especial / Revestimiento</option>
                         </select>
                     </div>
-
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Largo (m)</label>
-                            <input type="number" id="room-length" step="0.01" value="5.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Largo Recinto (m)</label>
+                            <input type="number" id="room-length" step="0.01" value="6.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Ancho (m)</label>
-                            <input type="number" id="room-width" step="0.01" value="4.0" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Ancho Recinto (m)</label>
+                            <input type="number" id="room-width" step="0.01" value="4.0" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Altura (m)</label>
-                            <input type="number" id="room-height" step="0.01" value="2.6" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Altura Muros (m)</label>
+                            <input type="number" id="room-height" step="0.01" value="2.6" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-1">Desperdicio (%)</label>
-                            <input type="number" id="waste-pct" step="1" value="10" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Desperdicio (%)</label>
+                            <input type="number" id="waste-pct" step="1" value="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
                         </div>
                     </div>
-
                     <div>
-                        <label class="block text-sm font-medium text-slate-300 mb-1">Precio Unitario Referencial ($)</label>
-                        <input type="number" id="unit-price" step="100" value="12500" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-100 focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Precio Unitario Material ($)</label>
+                        <input type="number" id="unit-price" step="100" value="14990" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition" required>
                     </div>
-
-                    <button type="button" id="calculate-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-blue-600/30">
-                        Calcular Cubicación y Costos
-                    </button>
+                    <button type="button" id="calculate-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3.5 px-4 rounded-xl transition-all shadow-lg shadow-blue-600/30 text-sm mt-2">Actualizar Cubicación 3D</button>
                 </form>
             </div>
-
-            <div class="mt-6 pt-4 border-t border-slate-700 text-xs text-slate-400 text-center">
-                Desarrollado para la industria de la construcción en Chile 🇨🇱
+            <div class="mt-8 pt-4 border-t border-slate-800 text-xs text-slate-500 text-center flex items-center justify-center space-x-1">
+                <span>Calculadora orientada a la industria de la construcción 🇨🇱</span>
             </div>
         </section>
-
-        <!-- Panel de Resultados y Visualización 3D / Resumen -->
-        <section class="lg:col-span-2 space-y-6">
-
-            <!-- Vista Previa / Simulación -->
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-                <h2 class="text-xl font-semibold mb-4 text-blue-400 border-b border-slate-700 pb-2">Visualización de Espacio y Layout</h2>
-                <div id="canvas-container" class="w-full h-64 bg-slate-950 rounded-lg border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden">
-                    <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                    <div class="z-10 text-center p-4">
-                        <svg class="w-16 h-16 mx-auto text-blue-500 mb-2 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                        </svg>
-                        <p class="text-slate-300 font-medium" id="preview-text">Modelo 3D Activo - Perímetro: 18.00 m | Área Total: 56.80 m²</p>
-                        <p class="text-xs text-slate-500 mt-1">Simulación paramétrica en tiempo real</p>
+        <!-- Panel Visualizador y Resultados -->
+        <section class="lg:col-span-8 space-y-6 flex flex-col justify-between">
+            <!-- Visor de Layout 3D -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl">
+                <div class="flex justify-between items-center mb-4 border-b border-slate-800 pb-3">
+                    <h2 class="text-lg font-bold text-blue-400">Simulación y Distribución de Layout</h2>
+                    <span id="layout-status" class="text-xs text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">Modelo Generado OK</span>
+                </div>
+                <div id="canvas-container" class="w-full h-72 bg-slate-950 rounded-xl border border-slate-800/80 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+                    <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#3b82f6_1.5px,transparent_1.5px)] [background-size:20px_20px]"></div>
+                    <div class="z-10 text-center p-6">
+                        <div class="w-16 h-16 mx-auto bg-blue-500/10 rounded-2xl border border-blue-500/30 flex items-center justify-center mb-3 text-blue-400">
+                            <svg class="w-8 h-8 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <p class="text-slate-200 font-semibold text-base" id="preview-title">Recinto: 6.00m x 4.00m x 2.60m</p>
+                        <p class="text-xs text-slate-400 mt-1" id="preview-subtitle">Perímetro total: 20.00 m | Área envolvente paredes + suelo: 76.00 m²</p>
                     </div>
                 </div>
             </div>
-
-            <!-- Resultados Detallados -->
-            <div class="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-xl">
-                <h2 class="text-xl font-semibold mb-4 text-blue-400 border-b border-slate-700 pb-2">Desglose de Materiales y Presupuesto</h2>
-
+            <!-- Desglose de Métricas y Presupuesto -->
+            <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-2xl">
+                <h2 class="text-lg font-bold mb-4 text-blue-400 border-b border-slate-800 pb-3">Resumen de Materiales y Costos</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                        <p class="text-xs text-slate-400 uppercase tracking-wider">Superficie Neta</p>
-                        <p id="res-area" class="text-2xl font-bold text-white mt-1">56.80 m²</p>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <p class="text-xs uppercase tracking-wider text-slate-400 font-medium">Superficie Total</p>
+                        <p id="res-area" class="text-2xl font-extrabold text-white mt-1">76.00 m²</p>
                     </div>
-                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                        <p class="text-xs text-slate-400 uppercase tracking-wider">Cantidad con Desperdicio</p>
-                        <p id="res-units" class="text-2xl font-bold text-emerald-400 mt-1">21 Unidades</p>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <p class="text-xs uppercase tracking-wider text-slate-400 font-medium">Unidades (+ Desperdicio)</p>
+                        <p id="res-units" class="text-2xl font-extrabold text-emerald-400 mt-1">28 Planchas</p>
                     </div>
-                    <div class="bg-slate-900 p-4 rounded-lg border border-slate-700">
-                        <p class="text-xs text-slate-400 uppercase tracking-wider">Costo Total Estimado</p>
-                        <p id="res-total" class="text-2xl font-bold text-blue-400 mt-1">$262.500</p>
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+                        <p class="text-xs uppercase tracking-wider text-slate-400 font-medium">Costo Total Estimado</p>
+                        <p id="res-total" class="text-2xl font-extrabold text-blue-400 mt-1">$419.720</p>
                     </div>
                 </div>
-
-                <div class="flex justify-end space-x-4">
-                    <button id="export-csv-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-2 px-4 rounded-lg transition-colors text-sm">
-                        Exportar Informe CSV
-                    </button>
-                    <button id="print-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm">
-                        Imprimir / Guardar PDF
-                    </button>
+                <div class="flex flex-wrap justify-end gap-3">
+                    <button id="export-csv-btn" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium py-2.5 px-5 rounded-xl transition text-sm border border-slate-700">Exportar Informe (CSV)</button>
+                    <button id="print-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 px-5 rounded-xl transition text-sm shadow-lg shadow-blue-600/20">Imprimir / Generar PDF</button>
                 </div>
             </div>
-
         </section>
     </main>
-
     <!-- Footer -->
-    <footer class="bg-slate-800 border-t border-slate-700 py-4 text-center text-xs text-slate-400">
-        Cubicador 3D &copy; 2026 - Todos los derechos reservados.
+    <footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500">
+        Cubicador 3D para Arquitectura y Construcción &copy; 2026 - Todos los derechos reservados.
     </footer>
-
     <!-- JavaScript Principal -->
     <script src="js/app.js"></script>
 </body>
