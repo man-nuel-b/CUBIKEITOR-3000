@@ -8,7 +8,7 @@
 <h2>Prueba de geometría</h2><p>Mueve el nodo N2 para cambiar simultáneamente los muros W1 y W2.</p>
 <label for="nx">Nodo N2 · X (mm)</label><input id="nx" type="number" value="6000" min="1300" max="10000" step="100">
 <label for="ny">Nodo N2 · Y del plano (mm)</label><input id="ny" type="number" value="0" min="-3000" max="3000" step="100">
-<button id="apply">Actualizar nodos y mallas</button>
+<label style="display:flex;gap:9px;align-items:center"><input id="snap-enabled" type="checkbox" checked style="width:auto"> Imantar a nodos y muros cercanos (150 mm)</label><button id="apply">Actualizar nodos y mallas</button><div id="snap-status" aria-live="polite" style="font-size:12px;color:#a7d8f5;margin-top:8px">Imantación activada</div>
 <button id="reset" style="background:#37506c;color:white">Restablecer planta</button>
 <label for="op-type">Nueva abertura</label><select id="op-type" style="width:100%;background:#0d1b30;color:white;padding:10px"><option value="ventana">Ventana</option><option value="puerta">Puerta</option></select>
 <label for="op-wall">Muro</label><select id="op-wall" style="width:100%;background:#0d1b30;color:white;padding:10px"><option value="w1">W1</option><option value="w2">W2</option><option value="w3">W3</option><option value="w4">W4</option></select>
@@ -21,11 +21,11 @@
 <section class="panel"><h2>Visor de muros vectoriales</h2><div id="viewport"></div><p>Arrastra para girar · Rueda para acercar · Selección por clic identifica el muro</p></section></main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<script src="src/floor-plan-core.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
+<script src="src/floor-plan-core.js"></script><script src="src/snap-engine.js"></script><script src="src/vector-wall-mesh.js"></script><script src="src/wall-cutouts.js"></script><script src="src/vector-opening-mesh.js"></script>
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
+const $=id=>document.getElementById(id),FP=window.CubikeitorFloorPlan,SNAP=window.CubikeitorSnap,VM=window.CubikeitorVectorWalls,WC=window.CubikeitorWallCutouts,OM=window.CubikeitorVectorOpenings;
 function status(s,error=false){$('status').textContent=s;$('status').className=error?'error':'';}
 if(!window.THREE||!THREE.OrbitControls){status('Three.js no pudo cargarse. Comprueba la conexión.',true);return;}
 const mount=$('viewport'),scene=new THREE.Scene();scene.background=new THREE.Color('#18283e');
@@ -54,7 +54,17 @@ function redraw(){
  for(const [id,mesh] of openingMeshes)if(!state.openings[id]){scene.remove(mesh);mesh.geometry.dispose();mesh.material.dispose();openingMeshes.delete(id);}
  status('Revisión '+state.revision+' · '+wallMeshes.size+' muros · '+openingMeshes.size+' aberturas con recorte 3D.');
 }
-$('apply').onclick=()=>{try{const x=Number($('nx').value),y=Number($('ny').value);state=FP.moveNode(state,'n2',{x,y});redraw();}catch(e){status(e.message,true);}};
+$('apply').onclick=()=>{try{
+ const x=Number($('nx').value),y=Number($('ny').value);
+ const position=$('snap-enabled').checked?SNAP.getSnappedPosition(x,y,state.nodes,state.walls,'n2',150):{x,y,snappedTo:null};
+ // A coincident existing node would make incident wall degenerate. Preserve the
+ // current valid state rather than committing an invalid snap.
+ const next=FP.moveNode(state,'n2',{x:position.x,y:position.y});
+ state=next;
+ $('nx').value=position.x;$('ny').value=position.y;
+ $('snap-status').textContent=position.snappedTo?'Imantado a '+position.snappedTo.type+' '+position.snappedTo.id:'Sin punto de imantación cercano';
+ redraw();
+ }catch(e){status('Movimiento rechazado: '+e.message,true);}};
 $('add-opening').onclick=()=>{try{const type=$('op-type').value,wallId=$('op-wall').value,offsetFromStart=Number($('op-offset').value);let count=2,id='op2';while(state.openings[id])id='op'+(++count);const opening={id,wallId,type,width:type==='puerta'?900:1200,height:type==='puerta'?2100:1050,offsetFromStart,sillHeight:type==='puerta'?0:900};state=FP.addOpeningToWall(state,opening);redraw();}catch(e){status(e.message,true);}};
 $('reset').onclick=()=>{state=JSON.parse(JSON.stringify(FP.initialProjectState));$('nx').value=6000;$('ny').value=0;redraw();};
 renderer.domElement.addEventListener('click',e=>{const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1);const ray=new THREE.Raycaster();ray.setFromCamera(p,camera);const hits=ray.intersectObjects([...wallMeshes.values()],true);if(hits.length){const id=hits[0].object.userData.wallId;const m=FP.getWallMetrics(state,id);status('Muro '+id+' · largo '+m.lengthMm.toFixed(0)+' mm · área neta '+m.netAreaM2.toFixed(2)+' m²');}});
